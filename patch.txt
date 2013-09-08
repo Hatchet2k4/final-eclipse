@@ -1,0 +1,5 @@
+This patch fixes some minor issues:
+- Minimap now doesn't show a wall where a door is
+- Increased clickable area for items in the main screen
+- Fixed pause 
+- Fixed bug where a weapon would dissapear if it was empty and you tried to use it.

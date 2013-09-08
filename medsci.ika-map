@@ -1,0 +1,150 @@
+(ika-map 
+	(version '1.2')
+	(information 
+		(title '')
+		(meta )
+	)
+	(header 
+		(dimensions 
+			(width '50')
+			(height '50')
+		)
+		(tileset 'DUNGEON.VSP')
+	)
+	(waypoints )
+	(zones )
+	(layers 
+		(layer 
+			(label 'Walls')
+			(type 'tile')
+			(dimensions 
+				(width '50')
+				(height '50')
+			)
+			(position 
+				(x '0')
+				(y '0')
+			)
+			(parallax 
+				(mulx '1')
+				(muly '1')
+				(divx '1')
+				(divy '1')
+			)
+			(wrap 
+				(x 'false')
+				(y 'false')
+			)
+			(data 
+				(format 'zlib')
+				'eJzsmOsKwzAIhQ3t+z/z9mNlctBoc1szzgfStXHoiaYJFZlLedthWJkcdzRevrN0FPnOXQHz5hN9rKu2E+5ncBi65BPb4gQ/D28c443C0xHN5046LHbREfVN1HfoF8UbBa5J3Ueev1TG0Q9ZVQ+dh2cie+mw2OV9FeVRq5NVt2y8Xlp0ZKCONmp9gftfxkffr9QR1cPL6WnrPLNPWD6ZffBOnXrJnKN66oF+q+uhx3t0YN1m6sisZyR7vvqXeqxaH63z07o+nqYj6ivvHLZzX935XytXntlvCvhcP8Nx7zchhBBCCCGEEEIIIYT8ghcAAAD//w=='
+			)
+			(obstructions 
+				(style 'tile')
+				(format 'zlib')
+				'eJzsVNESgCAIY///090ZCqjMfI7dlamtbcEpsgdeJLtbhrsnX1shmUbcQRgzRme1q891JIyuN7z62eJK3xCYl2NyZSHkyDUGz+doD7krLFlP/2pSGvXmGi/D0oVpZGDmdc205tYT1hygFYT+GvisvB7qCnEV85LfE2w0eF95rQ+uxBXAr15rkBx7PtVgvUA0YK6s0y9PhsvTp1AoFP6IBwAA//8='
+			)
+			(entities )
+			(zones )
+		)
+		(layer 
+			(label 'Objects')
+			(type 'tile')
+			(dimensions 
+				(width '100')
+				(height '100')
+			)
+			(position 
+				(x '0')
+				(y '0')
+			)
+			(parallax 
+				(mulx '1')
+				(muly '1')
+				(divx '1')
+				(divy '1')
+			)
+			(wrap 
+				(x 'false')
+				(y 'false')
+			)
+			(data 
+				(format 'zlib')
+				'eJzs2O1ugyAYBlAvoqXe/5Vu/CBjTD4sLizznKQRq23Ng7xIt427CqsvACY9P19743jrHn9dfC13l/J8p648Ovt5H+u3tfZKm75n5b3QOScpx0ViLv8d+/Z1j/fmkpC1888zZuYebs0fe7FlXMwxbN/zjPupRh3VqrIfW/N16Bznp5nnrCN5jbvye+/gUWxbWvN6lHIv65S6NabMKa8rrXp19jf0x1pxnOiD82JmeXZHGY7Wfv+rzCvzf2fefVXaXCfvl6OMa7l7jrrWmbXCaPbGzHrGCf+R2rLeyHqvVn9G6tLsevKOylzPrOXkDQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/HUfAAAA//8='
+			)
+			(obstructions 
+				(style 'tile')
+				(format 'zlib')
+				'eJzs07sKACAIAMD8/59uKWgNehl3g+CiqFgKM+JKx/NdV4geYsjT23OPaHWz72iYYPMo+XcFv/GTAAAAAAAAALygAgAA//8='
+			)
+			(entities )
+			(zones )
+		)
+		(layer 
+			(label 'Decals 1')
+			(type 'tile')
+			(dimensions 
+				(width '100')
+				(height '100')
+			)
+			(position 
+				(x '0')
+				(y '0')
+			)
+			(parallax 
+				(mulx '1')
+				(muly '1')
+				(divx '1')
+				(divy '1')
+			)
+			(wrap 
+				(x 'false')
+				(y 'false')
+			)
+			(data 
+				(format 'zlib')
+				'eJzswTEBAAAAwqD1T+1lC6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAbAAAA//8='
+			)
+			(obstructions 
+				(style 'tile')
+				(format 'zlib')
+				'eJzswQENAAAAwqD3T20ON6AAAAAAAAAAAADg3wAAAP//'
+			)
+			(entities )
+			(zones )
+		)
+		(layer 
+			(label 'Decals 2')
+			(type 'tile')
+			(dimensions 
+				(width '100')
+				(height '100')
+			)
+			(position 
+				(x '0')
+				(y '0')
+			)
+			(parallax 
+				(mulx '1')
+				(muly '1')
+				(divx '1')
+				(divy '1')
+			)
+			(wrap 
+				(x 'false')
+				(y 'false')
+			)
+			(data 
+				(format 'zlib')
+				'eJzswTEBAAAAwqD1T+1lC6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAbAAAA//8='
+			)
+			(obstructions 
+				(style 'tile')
+				(format 'zlib')
+				'eJzswQENAAAAwqD3T20ON6AAAAAAAAAAAADg3wAAAP//'
+			)
+			(entities )
+			(zones )
+		)
+	)
+)
