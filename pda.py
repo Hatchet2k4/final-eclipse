@@ -191,12 +191,12 @@ class PDA(object):
       message = []
       title = ""
       for l in linelist:
-         if title == "": title = l
+         if title == "": title = l #first line of file or first line after # character is always the log title
          else:
             if l[0] != "#": #loop until a # character is reached
                message.append(l)
             else:
-               logs.append((False, title, message))
+               logs.append((False, title, message)) #Logs by default are not read, so False
                message = []
                title = ""
 
@@ -209,7 +209,7 @@ class PDA(object):
       self.fulllogs[num] = (True, title, message)
       self.logs = self.ReduceLogs()
 
-   def ReduceLogs(self):
+   def ReduceLogs(self): #only add the ones that have been read
       l = []
       for i in self.fulllogs:
          if i[0] is True:

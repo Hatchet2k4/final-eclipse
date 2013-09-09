@@ -400,12 +400,18 @@ class Engine(object):
           and self.MouseY() > self.top + 8 and self.MouseY() < self.top + 128: #clicked in bottom of main window
               offx, offy = self.offtable[self.facing]
               if self.inv.grabbeditem is None: #not holding an item, grab one
+                 #todo: code pressing buttons
+                 # if facing a wall directly ahead and wall contains a pressable item, find the clickable area and compare to activate
+
+
                  if self.items.has_key((self.plrx+offx, self.plry+offy)):
                     self.inv.grabbeditem = self.items[(self.plrx+offx, self.plry+offy)].pop()
                     self.messages.AddMessage(self.inv.grabbeditem.name)
                     if len(self.items[(self.plrx+offx, self.plry+offy)]) == 0:
                        del self.items[(self.plrx+offx, self.plry+offy)]
               else: #holding an item, place it
+              		#todo: add in code for using keys on buttons, etc
+
                  if self.items.has_key((self.plrx+offx, self.plry+offy)):
                     self.items[(self.plrx+offx, self.plry+offy)].append(self.inv.grabbeditem)
                  else:
@@ -479,6 +485,9 @@ class Engine(object):
     def Reload(self, ammotype=None):
        if self.attacking: return
        required = 0
+
+       #todo: right click on ammo to reload
+
         #if ammotype:
        if isinstance(self.equip.righthand, Pistol) and self.equip.righthand.count < 16:
           required = 16 - self.equip.righthand.count
@@ -763,8 +772,8 @@ class Engine(object):
        return True #obsutrction found
 
     def DrawWalls(self):
-        #Flip the background image, to make the movement look more realistic..
-        if(self.moved):
+
+        if(self.moved): #Took a step. Flip the background image, to make the movement look more realistic..
             self.backflip += 1
             if(self.backflip > 1): self.backflip = 0
 
@@ -804,6 +813,7 @@ class Engine(object):
                 j += 1
                 t += 1
 
+		#background
         self.back[self.backflip].Blit(self.left, self.top)
 
         ##### Row 3 ############################################################################
@@ -1000,7 +1010,7 @@ class Engine(object):
        self.music.Pause()
        credits.Start()
 
-class Messages(object):
+class Messages(object): #two message lines under the dungeon window
    def __init__(self):
       self.msg = ["", ""]
       self.time = [0, 0]
@@ -1023,7 +1033,7 @@ class Messages(object):
          self.msg[1] = msg
          self.time[1] = time
 
-   def Pop(self):
+   def Pop(self): #pops bottom message up one level
       self.msg[0] = self.msg[1]
       self.time[0] = self.time[1]
       self.msg[1] = ""

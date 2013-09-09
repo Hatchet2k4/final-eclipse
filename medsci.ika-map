@@ -9,7 +9,7 @@
 			(width '50')
 			(height '50')
 		)
-		(tileset 'DUNGEON.VSP')
+		(tileset 'finaleclipse.vsp')
 	)
 	(waypoints )
 	(zones )
