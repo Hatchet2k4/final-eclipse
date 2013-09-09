@@ -10,7 +10,7 @@ import controls
 
 ika.SetCaption(ika.GetCaption() + " - Final Eclipse")
 engine = None
-intro.Start()
+#intro.Start()
 #credits.Start()
 
 class Engine(object):
