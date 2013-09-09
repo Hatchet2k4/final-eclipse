@@ -8,6 +8,7 @@ import pda
 import credits
 import controls
 
+
 ika.SetCaption(ika.GetCaption() + " - Final Eclipse")
 engine = None
 #intro.Start()
@@ -60,6 +61,8 @@ class Engine(object):
         self.lp3=[]
         self.rp3=[]
         self.frp3=[]
+
+	self.texturetest=ika.Image("Img/Walls/texturetest.png")
 
         self.objects = []
         self.objnum = 20
@@ -789,7 +792,11 @@ class Engine(object):
         x = 0
         y = 0
         t = 0
-
+        
+        #background
+        self.back[self.backflip].Blit(self.left, self.top)
+        
+	
         for i in range(4): #4 rows
             j = -i-1
             while(j < i+2):
@@ -813,8 +820,9 @@ class Engine(object):
                 j += 1
                 t += 1
 
-		#background
-        self.back[self.backflip].Blit(self.left, self.top)
+
+
+
 
         ##### Row 3 ############################################################################
         if(walls[17]): self.flp3[walls[17]-1].Blit(self.left, self.top)
@@ -925,6 +933,20 @@ class Engine(object):
         # diagonal walls row 0
         if(walls[0]): self.lp0[walls[0]-1].Blit(self.left, self.top)
         if(walls[2]): self.rp0[walls[2]-1].Blit(self.left, self.top)
+	
+
+	#self.cw1[0].Blit(self.left, self.top)
+	#self.texturetest.Blit(self.left+15, self.top+6)
+	
+	#uncomment for fun texture distortion :D 
+	#self.texturetest.DistortBlit((self.left+15, self.top+6),
+	#			     (self.left+53, self.top+20),
+	#			     (self.left+53, self.top+89),
+	#			     (self.left+15, self.top+117)    	
+	
+	)
+	
+
 
     def GetEnts(self, x, y):
        dead_ents = []

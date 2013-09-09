@@ -81,7 +81,7 @@
 			(zones )
 		)
 		(layer 
-			(label 'Decals 1')
+			(label 'Object Facing')
 			(type 'tile')
 			(dimensions 
 				(width '100')
@@ -114,7 +114,40 @@
 			(zones )
 		)
 		(layer 
-			(label 'Decals 2')
+			(label 'Decals')
+			(type 'tile')
+			(dimensions 
+				(width '100')
+				(height '100')
+			)
+			(position 
+				(x '0')
+				(y '0')
+			)
+			(parallax 
+				(mulx '1')
+				(muly '1')
+				(divx '1')
+				(divy '1')
+			)
+			(wrap 
+				(x 'false')
+				(y 'false')
+			)
+			(data 
+				(format 'zlib')
+				'eJzswTEBAAAAwqD1T+1lC6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAbAAAA//8='
+			)
+			(obstructions 
+				(style 'tile')
+				(format 'zlib')
+				'eJzswQENAAAAwqD3T20ON6AAAAAAAAAAAADg3wAAAP//'
+			)
+			(entities )
+			(zones )
+		)
+		(layer 
+			(label 'Decals Facing')
 			(type 'tile')
 			(dimensions 
 				(width '100')
