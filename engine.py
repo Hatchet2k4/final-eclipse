@@ -11,7 +11,7 @@ import controls
 
 ika.SetCaption(ika.GetCaption() + " - Final Eclipse")
 engine = None
-#intro.Start()
+intro.Start()
 #credits.Start()
 
 class Engine(object):
@@ -62,7 +62,7 @@ class Engine(object):
         self.rp3=[]
         self.frp3=[]
 
-	self.texturetest=ika.Image("Img/Walls/texturetest.png")
+		#self.texturetest=ika.Image("Img/Walls/texturetest.png")
 
         self.objects = []
         self.objnum = 20
@@ -944,7 +944,7 @@ class Engine(object):
 	#			     (self.left+53, self.top+89),
 	#			     (self.left+15, self.top+117)    	
 	
-	)
+	#)
 	
 
 
