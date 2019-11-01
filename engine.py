@@ -11,7 +11,7 @@ import controls
 
 ika.SetCaption(ika.GetCaption() + " - Final Eclipse")
 engine = None
-intro.Start()
+#intro.Start()
 #credits.Start()
 
 class Engine(object):
@@ -65,7 +65,7 @@ class Engine(object):
 		#self.texturetest=ika.Image("Img/Walls/texturetest.png")
 
         self.objects = []
-        self.objnum = 20
+        self.objnum = 20 #objects start at 20 in the map
         self.decalnum = 40
         self.arrows = []
         for i in range(4):
@@ -111,7 +111,7 @@ class Engine(object):
     def LoadWalls(self, deck):
        walllist = []
        if deck == "medsci":
-          walllist = ["med1", "med2", "med1win", "med1door"]
+          walllist = ["med1", "med2", "med1win", "med1door", "med2door", "military", "militarydoor", "bed"]
           self.back=[ika.Image("img/backgrounds/"+deck+"1.png"), ika.Image("img/backgrounds/"+deck+"2.png")]
        for path in walllist:
 
@@ -162,8 +162,6 @@ class Engine(object):
         self.inv = Inventory()
         self.equip = Equip()
 
-
-
         self.entities=[
                        entity.Vagimon(10,3, ika.Random(0, 4)),
                        entity.Vagimon(5,8, ika.Random(0, 4)),
@@ -203,7 +201,7 @@ class Engine(object):
                        entity.Walker(26,5, ika.Random(0, 4))
                        ]
 
-        self.message = ["", "", ""]
+        #self.message = ["", "", ""]
 
         self.items = {
                        (4, 6) : [Pipe()],
@@ -399,19 +397,23 @@ class Engine(object):
           self.inv.grabbeditem.Draw(int(self.MouseX())-8, int(self.MouseY())-8)
 
        if self.MouseClicked(): #click!
+       
+       
+          ### Main Window Click ###############################################################################
+          
           if self.MouseX() > self.left and self.MouseX() < self.left + 224 \
           and self.MouseY() > self.top + 8 and self.MouseY() < self.top + 128: #clicked in bottom of main window
               offx, offy = self.offtable[self.facing]
-              if self.inv.grabbeditem is None: #not holding an item, grab one
+              if self.inv.grabbeditem is None: #not holding an item, try to grab one
                  #todo: code pressing buttons
                  # if facing a wall directly ahead and wall contains a pressable item, find the clickable area and compare to activate
 
 
-                 if self.items.has_key((self.plrx+offx, self.plry+offy)):
-                    self.inv.grabbeditem = self.items[(self.plrx+offx, self.plry+offy)].pop()
+                 if self.items.has_key((self.plrx+offx, self.plry+offy)): #item exists here
+                    self.inv.grabbeditem = self.items[(self.plrx+offx, self.plry+offy)].pop() #grabs only the first item out of the list
                     self.messages.AddMessage(self.inv.grabbeditem.name)
                     if len(self.items[(self.plrx+offx, self.plry+offy)]) == 0:
-                       del self.items[(self.plrx+offx, self.plry+offy)]
+                       del self.items[(self.plrx+offx, self.plry+offy)] #delete out of dict if it's empty
               else: #holding an item, place it
               		#todo: add in code for using keys on buttons, etc
 
@@ -435,7 +437,7 @@ class Engine(object):
              elif self.MouseR(): #use the item!
                  self.inv.UseItem(self.MouseX(), self.MouseY())
 
-          #### Equip System #################################################################################
+          #### Equip System ###################################################################################
 
           if self.MouseX() > 253 and self.MouseX() < 253+16 \
           and self.MouseY() > 178 and self.MouseY() < 178+32: #Right hand
@@ -791,25 +793,38 @@ class Engine(object):
 
         x = 0
         y = 0
-        t = 0
+        t = 0 #flat index to walls
         
         #background
         self.back[self.backflip].Blit(self.left, self.top)
         
 	
         for i in range(4): #4 rows
-            j = -i-1
+            j = -i-1 #starts -1, ends -4 
             while(j < i+2):
                 if self.facing == 0: x = j; y = -i
                 if self.facing == 1: x = i; y = j
                 if self.facing == 2: x = -j; y = i
                 if self.facing == 3: x = -i; y = -j
 
-                walls[t] = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 0)
+                walls[t] = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 0) #Wall layer
                 ents[t] = self.GetEnts(int(self.plrx+x), int(self.plry+y))
-                o = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 1)
-                if o:
-                  obj[t] = self.objects[o-self.objnum]
+                o = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 1) #get from Object layer
+                if o>0 and o<self.decalnum:                 
+                  try: 
+                     obj[t] = self.objects[o-self.objnum]
+                  except IndexError: 
+                      #sometimes get very odd results for o when reading outside map bounds..
+                      ika.Log("t:" + str(t))
+                      ika.Log("o:" + str(o))
+                      ika.Log("objnum:" + str(self.objnum))
+                      ika.Log("x:"+str(int(self.plrx+x)))
+                      ika.Log("y:"+str(int(self.plry+y)))
+                      
+                      
+                      
+                  
+                  
                   if o-self.objnum<2:
                      item_offset[t] = 32/(i+1)
                   elif o-self.objnum>3:
@@ -980,7 +995,10 @@ class Engine(object):
           self.health = self.max_health
 
     def Hurt(self, amount):
-       self.health -= (amount - self.defense)
+       
+       hurtamt = (amount - self.defense)
+       if hurtamt < 1: hurtamt=1
+       self.health -= hurtamt
 
        if self.health > 75: self.sound.Play("pain100.wav")
        elif self.health > 50: self.sound.Play("pain75.wav")
@@ -1036,13 +1054,17 @@ class Messages(object): #two message lines under the dungeon window
    def __init__(self):
       self.msg = ["", ""]
       self.time = [0, 0]
+      self.maxtime = [0, 0]
 
    def Update(self):
-      self.time[0] -= 1
-      if self.time[0] == 0:
-         self.Pop()
-      self.time[1]-=1
-
+      for i in range(2): 
+          if self.maxtime[i] > 0: 
+            self.time[i] +=1
+            
+      if self.time[0] >= self.maxtime[0]: #only pops one message per update
+          self.Pop()
+         
+         
    def AddMessage(self, msg, time=500):
       if self.msg[0] == "":
          self.msg[0] = msg
