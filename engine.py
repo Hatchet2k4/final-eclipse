@@ -64,6 +64,7 @@ class Engine(object):
 		#self.texturetest=ika.Image("Img/Walls/texturetest.png")
 
         self.objects = []
+        self.decals = []
         self.objnum = 20 #objects start at 20 in the map
         self.decalnum = 40
         self.arrows = []
@@ -82,6 +83,7 @@ class Engine(object):
 
         #self.LoadWalls("medsci")
         self.LoadWalls("operations")
+        self.LoadDecals()
         self.LoadObjects()
 
         self.handframes = [ika.Image("Img/weapons/fp_handr.png"),
@@ -156,14 +158,44 @@ class Engine(object):
           self.objects.append(obj)
 
     def LoadDecals(self):
-       decallist = ["door", "dcode_g", "dcode_r", "dkey_g", "dkey_r", "switch1", "switch2", ]
-       pass
+        decallist = ["door", "dcode_r", "dcode_g", "dkey_r", "dkey_g", "blood_sm", "blood_big", "switch1", "switch2"] #order is important, based on order in tileset. /4 for each direction
+        filelist = ["flat1left.png", "flat1mid.png","flat1right.png", "per1left.png", "per1right.png",
+               "flat2left.png", "flat2mid.png","flat2right.png", "per2left.png", "per2right.png",
+               "flat3left.png", "flat3mid.png","flat3right.png", "per3left.png", "per3right.png",
+               "per4left.png", "per4right.png", "per4left.png", "per4farleft, per4farright.png"]
+        
+        for path in decallist:      
+            d=Decal()
+            d.lw0 = ika.Image("img/decals/"+path+"/flat1left.png")
+            d.cw0 = ika.Image("img/decals/"+path+"/flat1mid.png")
+            d.rw0 = ika.Image("img/decals/"+path+"/flat1right.png")
+
+            d.lp0 = ika.Image("img/decals/"+path+"/per1left.png")
+            d.rp0 = ika.Image("img/decals/"+path+"/per1right.png")
+
+            d.lw1 = ika.Image("img/decals/"+path+"/flat2left.png")
+            d.cw1 = ika.Image("img/decals/"+path+"/flat2mid.png")
+            d.rw1 = ika.Image("img/decals/"+path+"/flat2right.png")
+
+            d.lp1 = ika.Image("img/decals/"+path+"/per2left.png")
+            d.rp1 = ika.Image("img/decals/"+path+"/per2right.png")
+
+            d.lw2 = ika.Image("img/decals/"+path+"/flat3left.png")
+            d.cw2 = ika.Image("img/decals/"+path+"/flat3mid.png")
+            d.rw2 = ika.Image("img/decals/"+path+"/flat3right.png")
+
+            d.lp2 = ika.Image("img/decals/"+path+"/per3left.png")
+            d.rp2 = ika.Image("img/decals/"+path+"/per3right.png")
+
+            d.flp3 = ika.Image("img/decals/"+path+"/per4farleft.png")
+            d.lp3 = ika.Image("img/decals/"+path+"/per4left.png")
+            d.rp3 = ika.Image("img/decals/"+path+"/per4right.png")
+            d.frp3 = ika.Image("img/decals/"+path+"/per4farright.png")
+            self.decals.append(d) 
 
     def NewGame(self):
-
         self.inv = Inventory()
         self.equip = Equip()
-
         self.entities=[
                        entity.Vagimon(10,3, ika.Random(0, 4)),
                        entity.Vagimon(5,8, ika.Random(0, 4)),
@@ -202,8 +234,6 @@ class Engine(object):
                        entity.Walker(29,3, ika.Random(0, 4)),
                        entity.Walker(26,5, ika.Random(0, 4))
                        ]
-
-        #self.message = ["", "", ""]
 
         self.items = {
                        (4, 6) : [Pipe()],
@@ -247,7 +277,7 @@ class Engine(object):
         self.max_immunity = 100
 
         self.attack = 0
-        self.defense = 2
+        self.defense = 0
 
         self.plrx = 3
         self.plry = 5
@@ -291,15 +321,12 @@ class Engine(object):
 
             ika.Input.Update()
 
-
-
             self.UpdateStats()
             self.Move()
             self.DrawWalls()
-            self.DrawFrames()
+            self.DrawFrames() #draws equipped weapon in its current state
 
-
-
+            #main hud drawing
             ika.Video.Blit(self.hudmain, 0, 0)
             ika.Video.TintBlit(self.hudcolor, 0, 0, self.color)
             ika.Video.TintDistortBlit(self.hudhealth,
@@ -308,16 +335,11 @@ class Engine(object):
                                   (249 + (50 * self.health / self.max_health), 150, self.color),
                                   (249, 150, self.color))
 
-
-
-
             self.inv.Draw()
             self.equip.Draw()
 
             self.pda.Draw()
             self.messages.Draw()
-
-
 
             if not self.fullscreen:
                self.DoMouse()
@@ -396,7 +418,8 @@ class Engine(object):
        if self.inv.grabbeditem is None:
           ika.Video.TintBlit(self.ptr, int(self.MouseX()), int(self.MouseY()), self.color)
        else:
-          self.inv.grabbeditem.Draw(int(self.MouseX())-8, int(self.MouseY())-8)
+          #self.inv.grabbeditem.Draw(int(self.MouseX())-8, int(self.MouseY())-8)
+          self.inv.grabbeditem.Draw(int(self.MouseX()), int(self.MouseY()))
 
        if self.MouseClicked(): #click!
        
@@ -809,10 +832,23 @@ class Engine(object):
 
                 walls[t] = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 0) #Wall layer
                 ents[t] = self.GetEnts(int(self.plrx+x), int(self.plry+y))
+                
+                d = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 3) #Decal layer
+                if d>=self.decalnum and d<100: #within decal range, currently tiles 40+
+                    d-=self.decalnum
+                    try: 
+                       dec = int(d /4) #get the decal tile number
+                       facing = d % 4 #get the facing number
+                       decals[t] = self.decals[dec]
+                    except IndexError: 
+                        ika.Log("d:" + str(d))
+                
                 o = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 1) #get from Object layer
-                if o>0 and o<self.decalnum:                 
+                
+                if o>=self.objnum and o<self.decalnum: #within object range, currently tiles 20-40
+                  o-=self.objnum
                   try: 
-                     obj[t] = self.objects[o-self.objnum]
+                     obj[t] = self.objects[o]
                   except IndexError: 
                       #sometimes get very odd results for o when reading outside map bounds..
                       ika.Log("t:" + str(t))
@@ -825,12 +861,14 @@ class Engine(object):
                       
                   
                   
-                  if o-self.objnum<2:
-                     item_offset[t] = 32/(i+1)
-                  elif o-self.objnum>3:
-                     item_offset[t] = 32/(i+1) + 24
+
+                
                 if self.items.has_key((int(self.plrx+x), int(self.plry+y))):
                    f_items[t] = self.items[(int(self.plrx+x), int(self.plry+y))]
+                   if o<2: #hack to draw items at proper height on tables, object numbers 0 and 1
+                      item_offset[t] = 32/(i+1)
+                   elif o-self.objnum==4: #crate 
+                      item_offset[t] = 32/(i+1) + 24
 
                 j += 1
                 t += 1
@@ -938,9 +976,20 @@ class Engine(object):
         if(ents[6]):
            for e in ents[6]: ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
 
+        #do facing..
+        if(decals[4]): decals[4].lw0.Blit(self.left, self.top)
+        if(decals[5]): decals[5].cw0.Blit(self.left, self.top)
+        if(decals[6]): decals[6].rw0.Blit(self.left, self.top)
+
         if(walls[4]): self.lw0[walls[4]-1].Blit(self.left, self.top)
         if(walls[5]): self.cw0[walls[5]-1].Blit(self.left, self.top)
         if(walls[6]): self.rw0[walls[6]-1].Blit(self.left, self.top)
+
+        #do facing..
+        if(decals[4]): decals[4].lw0.Blit(self.left, self.top)
+        if(decals[5]): decals[5].cw0.Blit(self.left, self.top)
+        if(decals[6]): decals[6].rw0.Blit(self.left, self.top)
+
 
         #if f_items[1]:
         #   for i in f_items[1]: ika.Video.Blit(i.img, 110, 110)
@@ -1049,6 +1098,31 @@ class Engine(object):
 
        self.music.Pause()
        credits.Start()
+
+class Decal(object): 
+    def __init__(self):
+        self.lw0=None
+        self.cw0=None
+        self.rw0=None
+        self.lp0=None
+        self.rp0=None
+                 
+        self.lw1=None
+        self.cw1=None
+        self.rw1=None
+        self.lp1=None
+        self.rp1=None
+                 
+        self.lw2=None
+        self.cw2=None
+        self.rw2=None
+        self.lp2=None
+        self.rp2=None
+
+        self.flp3=None
+        self.lp3=None
+        self.rp3=None
+        self.frp3=None
 
 class Messages(object): #two message lines under the dungeon window
    def __init__(self):
