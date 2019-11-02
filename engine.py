@@ -6,7 +6,6 @@ import entity
 import sound
 import pda
 import credits
-import controls
 
 
 ika.SetCaption(ika.GetCaption() + " - Final Eclipse")
@@ -81,7 +80,8 @@ class Engine(object):
 
 
 
-        self.LoadWalls("medsci")
+        #self.LoadWalls("medsci")
+        self.LoadWalls("operations")
         self.LoadObjects()
 
         self.handframes = [ika.Image("Img/weapons/fp_handr.png"),
@@ -110,9 +110,11 @@ class Engine(object):
 
     def LoadWalls(self, deck):
        walllist = []
-       if deck == "medsci":
-          walllist = ["med1", "med2", "med1win", "med1door", "med2door", "military", "militarydoor", "bed"]
-          self.back=[ika.Image("img/backgrounds/"+deck+"1.png"), ika.Image("img/backgrounds/"+deck+"2.png")]
+       #if deck == "medsci":
+       walllist = ["med1", "med2", "med1win", "med1door", "med2door", "military", "militarydoor", "bed"]          
+       self.back=[ika.Image("img/backgrounds/"+deck+"1.png"), ika.Image("img/backgrounds/"+deck+"2.png")]
+       
+          
        for path in walllist:
 
          self.lw0.append(ika.Image("img/walls/"+path+"/flat1left.png"))
@@ -649,8 +651,6 @@ class Engine(object):
                 self.animtimer = 0
                 self.curframe = 0
 
-
-
           if isinstance(self.equip.righthand, Pistol):
              self.curframe = 1
              self.animtimer += 1
@@ -1062,26 +1062,25 @@ class Messages(object): #two message lines under the dungeon window
             self.time[i] +=1
             
       if self.time[0] >= self.maxtime[0]: #only pops one message per update
-          self.Pop()
+          self.Pop()         
          
-         
-   def AddMessage(self, msg, time=500):
+   def AddMessage(self, msg, maxtime=500):
       if self.msg[0] == "":
-         self.msg[0] = msg
-         self.time[0] = time
+         self.SetMessage(msg, 0, maxtime, 0)         
       elif self.msg[1] == "":
-         self.msg[1] = msg
-         self.time[1] = time
+         self.SetMessage(msg, 0, maxtime, 1)
       else:
          self.Pop()
-         self.msg[1] = msg
-         self.time[1] = time
+         self.SetMessage(msg, 0, maxtime, 1)
+
+   def SetMessage(self, msg, time, maxtime, slot):
+        self.msg[slot] = msg
+        self.time[slot] = time
+        self.maxtime[slot] = maxtime
 
    def Pop(self): #pops bottom message up one level
-      self.msg[0] = self.msg[1]
-      self.time[0] = self.time[1]
-      self.msg[1] = ""
-      self.time[1] = 0
+        self.SetMessage(self.msg[1], self.time[1], self.maxtime[1], 0)
+        self.SetMessage("", 0, 0, 1)
 
    def Draw(self):
       for i, m in enumerate(self.msg):
