@@ -156,7 +156,7 @@ class Engine(object):
           self.objects.append(obj)
 
     def LoadDecals(self):
-       decallist = ["dcode_g", "dcode_r", "dkey_g", "dkey_r", "switch1", "switch2", "door"]
+       decallist = ["door", "dcode_g", "dcode_r", "dkey_g", "dkey_r", "switch1", "switch2", ]
        pass
 
     def NewGame(self):
@@ -1084,7 +1084,7 @@ class Messages(object): #two message lines under the dungeon window
 
    def Draw(self):
       for i, m in enumerate(self.msg):
-         engine.tinyfont.Print(10, 142+10*i, m)
+         engine.tinyfont.Print(10, 144+10*i, m)
 
 ika.Map.Switch('medsci.ika-map')
 
