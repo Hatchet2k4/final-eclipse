@@ -236,7 +236,7 @@ class Engine(object):
                        ]
 
         self.items = {
-                       (4, 6) : [Pipe()],
+                       (4, 6) : [Pipe(), Pistol(16)],
                        (9,5) : [Armor1()],
                        (9,5) : [Hypo(2)],
                        (4,8) : [Pistol(7)],
@@ -599,6 +599,10 @@ class Engine(object):
                self.equip.righthand.count -= 1
                self.sound.Play("fire_pistol.wav")
                hurt = True
+               offx, offy = self.offtable[self.facing]
+               self.entities.append(entity.Projectile(self.plrx+offx,self.plry+offy, self.facing))
+               
+               
             else:
                self.sound.Play("Empty.wav")
 
@@ -636,7 +640,7 @@ class Engine(object):
           for i in range(1, distance+1):
              ents = self.GetEnts(self.plrx+i*offx, self.plry+i*offy)
              for e in ents:
-                if e and not e.dead:
+                if e and isinstance(e, entity.Enemy) and not e.dead:
                    e.Hurt(self.attack)
                    if not self.equip.righthand:
                       self.sound.Play("punch_hit.wav")
@@ -839,7 +843,8 @@ class Engine(object):
                     try: 
                        dec = int(d /4) #get the decal tile number
                        facing = d % 4 #get the facing number
-                       decals[t] = self.decals[dec]
+                       #decals[t] = self.decals[dec]
+                       decals[t] = dec
                     except IndexError: 
                         ika.Log("d:" + str(d))
                 
@@ -882,8 +887,12 @@ class Engine(object):
         if(walls[18]): self.lp3[walls[18]-1].Blit(self.left, self.top)
         if(walls[20]): self.rp3[walls[20]-1].Blit(self.left, self.top)
         if(walls[21]): self.frp3[walls[21]-1].Blit(self.left, self.top)
-
-
+        """
+        if(decals[17]): decals[17].flp3.Blit(self.left, self.top)
+        if(decals[18]): decals[18].lp3.Blit(self.left, self.top)
+        if(decals[20]): decals[20].rp3.Blit(self.left, self.top)
+        if(decals[21]): decals[21].frp3.Blit(self.left, self.top)
+        """
         ##### Row 2 ############################################################################
 
         if(obj[18]): obj[18][6].Blit(self.left, self.top)
@@ -903,11 +912,17 @@ class Engine(object):
                                   (185, 66-item_offset[20]), (185+8*i.w, 66-item_offset[20]),
                                   (185+8*i.w,66+6*i.h-item_offset[20]), (185, 66+6*i.h-item_offset[20]))
         if(ents[18]):
-           for e in ents[18]: ika.Video.Blit(e.GetFrame(self.facing, 2), 50, 36)
+           for e in ents[18]: 
+               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 50, 36)
+               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 50+12, 36+12)                               
         if(ents[19]):
-           for e in ents[19]: ika.Video.Blit(e.GetFrame(self.facing, 2), 101, 36)
+           for e in ents[19]: 
+               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 101, 36)
+               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 101+12, 36+12)
         if(ents[20]):
-           for e in ents[20]: ika.Video.Blit(e.GetFrame(self.facing, 2), 152, 36)
+           for e in ents[20]: 
+               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 152, 36)
+               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 152+12, 36+12)
 
         if(walls[18]): self.lw2[walls[18]-1].Blit(self.left, self.top)
         if(walls[19]): self.cw2[walls[19]-1].Blit(self.left, self.top)
@@ -915,6 +930,12 @@ class Engine(object):
 
         if(walls[10]): self.lp2[walls[10]-1].Blit(self.left, self.top)
         if(walls[12]): self.rp2[walls[12]-1].Blit(self.left, self.top)
+        
+        if(decals[18]): self.decals[decals[18]-1].lw2.Blit(self.left, self.top)
+        if(decals[19]): self.decals[decals[19]-1].cw2.Blit(self.left, self.top)
+        if(decals[20]): self.decals[decals[20]-1].rw2.Blit(self.left, self.top)
+        if(decals[10]): self.decals[decals[10]-1].lp2.Blit(self.left, self.top)
+        if(decals[12]): self.decals[decals[12]-1].rp2.Blit(self.left, self.top)
 
         ##### Row 1 ############################################################################
 
@@ -936,11 +957,17 @@ class Engine(object):
                                   (205+12*i.w,75+(10-i.h)*i.h-item_offset[12]), (205, 75+(10-i.h)*i.h-item_offset[12]))
 
         if(ents[10]):
-           for e in ents[10]: ika.Video.Blit(e.GetFrame(self.facing, 1), 7, 32)
+           for e in ents[10]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 7, 32)
+               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 7, 32)
+               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 1), 50+8, 32+8)   
         if(ents[11]):
-           for e in ents[11]: ika.Video.Blit(e.GetFrame(self.facing, 1), 89, 32)
+           for e in ents[11]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 89, 32)
+               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 89, 32)
+               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 1), 50+8, 32+8)   
         if(ents[12]):
-           for e in ents[12]: ika.Video.Blit(e.GetFrame(self.facing, 1), 170, 32)
+           for e in ents[12]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 170, 32)
+               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 170, 32)
+               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 1), 50+8, 32+8)   
 
 
         if(walls[10]): self.lw1[walls[10]-1].Blit(self.left, self.top)
@@ -950,6 +977,14 @@ class Engine(object):
         if(walls[4]): self.lp1[walls[4]-1].Blit(self.left, self.top)
         if(walls[6]): self.rp1[walls[6]-1].Blit(self.left, self.top)
 
+        #do facing..
+        """
+        if(decals[10]): decals[10].lw1.Blit(self.left, self.top)
+        if(decals[11]): decals[11].cw1.Blit(self.left, self.top)
+        if(decals[12]): decals[12].rw1.Blit(self.left, self.top)
+        if(decals[4]): decals[4].lp1.Blit(self.left, self.top)
+        if(decals[6]): decals[6].rp1.Blit(self.left, self.top)
+        """
         ##### Row 0 ############################################################################
 
         if(obj[4]): obj[4][0].Blit(self.left, self.top)
@@ -970,25 +1005,26 @@ class Engine(object):
                                           (210+16*i.w,96+(14-i.h*2)*i.h-item_offset[6]), (210, 96+(14-i.h*2)*i.h-item_offset[6]))
 
         if(ents[4]):
-           for e in ents[4]: ika.Video.Blit(e.GetFrame(self.facing, 0), -58, 30)
+           for e in ents[4]: #ika.Video.Blit(e.GetFrame(self.facing, 0), -58, 30)
+               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), -58, 30)
+               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 0), -58+32, 30+32)   
         if(ents[5]):
-           for e in ents[5]: ika.Video.Blit(e.GetFrame(self.facing, 0), 73, 30)
+           for e in ents[5]: #ika.Video.Blit(e.GetFrame(self.facing, 0), 73, 30)
+               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), 73, 30)
+               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 0), 73+32, 30+8)   
         if(ents[6]):
-           for e in ents[6]: ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
-
-        #do facing..
-        if(decals[4]): decals[4].lw0.Blit(self.left, self.top)
-        if(decals[5]): decals[5].cw0.Blit(self.left, self.top)
-        if(decals[6]): decals[6].rw0.Blit(self.left, self.top)
+           for e in ents[6]: #ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
+               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
+               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 0), 198+32, 30+32)   
 
         if(walls[4]): self.lw0[walls[4]-1].Blit(self.left, self.top)
         if(walls[5]): self.cw0[walls[5]-1].Blit(self.left, self.top)
         if(walls[6]): self.rw0[walls[6]-1].Blit(self.left, self.top)
 
         #do facing..
-        if(decals[4]): decals[4].lw0.Blit(self.left, self.top)
-        if(decals[5]): decals[5].cw0.Blit(self.left, self.top)
-        if(decals[6]): decals[6].rw0.Blit(self.left, self.top)
+        if(decals[4]): self.decals[decals[4]-1].lw0.Blit(self.left, self.top)
+        if(decals[5]): self.decals[decals[5]-1].cw0.Blit(self.left, self.top)
+        if(decals[6]): self.decals[decals[6]-1].rw0.Blit(self.left, self.top)
 
 
         #if f_items[1]:
@@ -997,7 +1033,9 @@ class Engine(object):
         # diagonal walls row 0
         if(walls[0]): self.lp0[walls[0]-1].Blit(self.left, self.top)
         if(walls[2]): self.rp0[walls[2]-1].Blit(self.left, self.top)
-	
+        
+        if(decals[0]): self.decals[decals[0]-1].lp0.Blit(self.left, self.top)
+        if(decals[2]): self.decals[decals[2]-1].rp0.Blit(self.left, self.top)
 
 	#self.cw1[0].Blit(self.left, self.top)
 	#self.texturetest.Blit(self.left+15, self.top+6)

@@ -2,19 +2,70 @@ import ika
 import engine
 from const import *
 
-#### Generic enemy class #######################################################
 
-class Enemy(object):
-   def __init__(self, x, y, f):
+class Entity(object):
+    def __init__(self, x, y, f):        
       self.x = x
       self.y = y
 
-      self.startx = x
+      self.startx = x #keep a record of original spawn location
       self.starty = y
 
       self.facing = f
       self.curframe = 0
       self.time = 0
+
+      #access as [player facing][entity facing]
+      self.dirtable = [[0, 1, 2, 3], #player facing north
+                       [3, 0, 1, 2], #east
+                       [2, 3, 0, 1], #south
+                       [1, 2, 3, 0]] #west
+
+      self.offtable = [(0,-1), (1, 0), (0, 1), (-1,0)]
+
+    def Update(self):
+       pass
+       
+class Projectile(Entity):
+    sprites=[ika.Image("Img/effects/circle32.png"),
+            ika.Image("Img/effects/circle24.png"),
+            ika.Image("Img/effects/circle16.png")]    
+
+    def __init__(self, x, y, f):        
+        super(type(self), self).__init__(x, y, f)
+        self.numframes = 1
+        self.distance=0
+        self.max_distance = 5
+        self.dead=False
+        
+    def Update(self):
+        if not self.dead:
+            self.time += 1
+            if self.time>=20:
+                self.time=0
+                self.distance+=1
+                if self.distance>self.max_distance:
+                    self.dead=True
+                else:
+                    self.Move(self.facing)
+                    
+    def Move(self, d):
+      offx, offy = self.offtable[d]
+      if not engine.engine.GetObs(self.x+offx, self.y+offy):
+         self.x += offx
+         self.y += offy
+      else:
+         self.dead=True
+       
+        
+    def GetFrame(self, face, row):
+        return Projectile.sprites[self.numframes*row]
+
+#### Generic enemy class #######################################################
+
+class Enemy(Entity):
+   def __init__(self, x, y, f):
+      super(Enemy, self).__init__(x, y, f)      
 
       self.attacking = False
       self.dead = False
@@ -24,13 +75,6 @@ class Enemy(object):
       self.hp = 0
       self.numframes = 15
 
-      #access as [player facing][entity facing]
-      self.dirtable = [[0, 1, 2, 3], #player facing north
-                       [3, 0, 1, 2], #east
-                       [2, 3, 0, 1], #south
-                       [1, 2, 3, 0]] #west
-
-      self.offtable = [(0,-1), (1, 0), (0, 1), (-1,0)]
 
       self.attacking = False
       self.walkanim = 1
