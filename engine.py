@@ -237,6 +237,7 @@ class Engine(object):
 
         self.items = {
                        (4, 6) : [Pipe(), Pistol(16)],
+                       (3, 6) : [BlueKey()],
                        (9,5) : [Armor1()],
                        (9,5) : [Hypo(2)],
                        (4,8) : [Pistol(7)],
@@ -418,8 +419,8 @@ class Engine(object):
        if self.inv.grabbeditem is None:
           ika.Video.TintBlit(self.ptr, int(self.MouseX()), int(self.MouseY()), self.color)
        else:
-          #self.inv.grabbeditem.Draw(int(self.MouseX())-8, int(self.MouseY())-8)
-          self.inv.grabbeditem.Draw(int(self.MouseX()), int(self.MouseY()))
+          self.inv.grabbeditem.Draw(int(self.MouseX())-8, int(self.MouseY())-8)
+          #self.inv.grabbeditem.Draw(int(self.MouseX()), int(self.MouseY()))
 
        if self.MouseClicked(): #click!
        
@@ -959,15 +960,15 @@ class Engine(object):
         if(ents[10]):
            for e in ents[10]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 7, 32)
                if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 7, 32)
-               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 1), 50+8, 32+8)   
+               elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
         if(ents[11]):
            for e in ents[11]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 89, 32)
                if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 89, 32)
-               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 1), 50+8, 32+8)   
+               elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
         if(ents[12]):
            for e in ents[12]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 170, 32)
                if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 170, 32)
-               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 1), 50+8, 32+8)   
+               elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
 
 
         if(walls[10]): self.lw1[walls[10]-1].Blit(self.left, self.top)
@@ -1007,15 +1008,15 @@ class Engine(object):
         if(ents[4]):
            for e in ents[4]: #ika.Video.Blit(e.GetFrame(self.facing, 0), -58, 30)
                if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), -58, 30)
-               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 0), -58+32, 30+32)   
+               elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), -58+32, 30+32, e.color)   
         if(ents[5]):
            for e in ents[5]: #ika.Video.Blit(e.GetFrame(self.facing, 0), 73, 30)
                if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), 73, 30)
-               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 0), 73+32, 30+8)   
+               elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), 73+32, 30+8, e.color)   
         if(ents[6]):
            for e in ents[6]: #ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
                if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
-               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 0), 198+32, 30+32)   
+               elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), 198+32, 30+32, e.color)   
 
         if(walls[4]): self.lw0[walls[4]-1].Blit(self.left, self.top)
         if(walls[5]): self.cw0[walls[5]-1].Blit(self.left, self.top)

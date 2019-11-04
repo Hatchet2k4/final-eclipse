@@ -16,16 +16,17 @@ class Inventory(object):
       self.top = 6
 
 
-      #self.AddItem(1, 1, Shells())
-      #self.AddItem(0, 1, Shells())
-      #self.AddItem(2, 0, Pistol(16))
-      #self.AddItem(0, 2, Hypo(2))
+      self.AddItem(1, 1, Shells(16))
+      self.AddItem(0, 1, Shells(10))
+      self.AddItem(0, 0, Medkit(1))
+      self.AddItem(0, 2, Food(2))
 
       #self.AddItem(3, 0, Shotgun(6) )
       #self.AddItem(0, 5, Armor1())
-      #self.AddItem(2, 6, Clip(40))
-      #self.AddItem(2, 7, Clip(60))
-      #self.AddItem(3, 7, Clip())
+      self.AddItem(2, 6, Clip(40))
+      self.AddItem(2, 7, Clip(60))
+      self.AddItem(3, 7, Clip())
+      self.AddItem(1, 7, Clip(42))
 
       self.block = ika.Image("Img/ui/block.png")
       self.grabbeditem = None
@@ -45,37 +46,44 @@ class Inventory(object):
                #                   engine.engine.color)
                item.Draw(int(self.left+16*(i%4)), int(self.top+16*(i/4)))
 
-   def AddItem(self, x, y, item): #returns true if an item as grabbed as a result of this, false if not
-      if x+item.w>4 or y+item.h>8: return None #out of bounds, bad! :P
+   #tries to add an item to the inventory. Returns true if an item is grabbed as a result of this, false if not
+   def AddItem(self, x, y, item): 
+      
+      if x+item.w>4 or y+item.h>8: return False #can't place an item if doing so would put it ouf of bounds
 
       g_item=None
       grab = False
       itemlist = self.CheckItems(x, y, item.w, item.h)
 
-      if len(itemlist) < 2: #only place the item if there is one or no items underneath it
+      if len(itemlist) < 2: #only try to place the item if there is one or no items underneath it
 
-         if len(itemlist) == 1: #only one item, grab it
+         if len(itemlist) == 1: #only one item, try to grab it
 
-            g_item=self.TakeItem(itemlist[0][0], itemlist[0][1])
+            g_item=self.TakeItem(itemlist[0][0], itemlist[0][1]) #Takes the item at the x / y location of first (only) item in the itemlist
 
-            if isinstance(g_item, Stackable) and type(g_item) == type(item) and item.countable == True: #stackable items!
-               item.count += g_item.count
-               g_item = None
+            if isinstance(g_item, Stackable) and item.countable == True and type(g_item) == type(item) : #same type of item, try to stack them
+               needed = item.max_count - item.count
+               if needed >= g_item.count: #has room for the entire grabbed item to stack into it
+                   item.count += g_item.count
+                   g_item = None
+               elif needed > 0: #only set to the maximum amount allowed by the item, rest is reduced from original item
+                    item.count = item.max_count
+                    g_item.count -= needed
             else: #normal item, so grab it instead of stacking it
                grab = True
-
-         d = DummyItem(x,y) #dummy items that point to the real item (only used for items larger than 1x1)
-         for h in range(item.h):
-            for w in range(item.w):
-               self.items[self.GetIndex(x+w,y+h)] = d
-         self.items[self.GetIndex(x, y)] = item
-
-         self.grabbeditem=g_item
-
-      else: grab = None #too many items underneath
+         if (item.h > 1 or item.w > 1): #item < 1 tile in some direction, so place dummy items first
+             d = DummyItem(x,y) #dummy items that point to the real item (only used for items larger than 1x1)
+             for h in range(item.h):
+                for w in range(item.w):
+                   self.items[self.GetIndex(x+w,y+h)] = d
+         self.items[self.GetIndex(x, y)] = item #place the real item at the top left location
+         
+         self.grabbeditem=g_item 
+      else: grab = False #too many items underneath
 
       return grab
 
+   #returns a list of x, y locations
    def CheckItems(self, x, y, w, h):
       itemList = []
       for a in range(w):
@@ -84,7 +92,7 @@ class Inventory(object):
             if isinstance(i, Item):
                itemList.append((x+a, y+b))
             elif isinstance(i, DummyItem):
-               if not (i.x, i.y) in itemList:
+               if not (i.x, i.y) in itemList: #add original item, not the dummy
                   itemList.append((i.x, i.y))
 
       return itemList
@@ -94,9 +102,9 @@ class Inventory(object):
       if isinstance(item, Item):
          self.RemoveItem(x,y, item.w, item.h)
       elif isinstance(item, DummyItem):
-         d = self.items[self.GetIndex(item.x, item.y)]
-         self.RemoveItem(item.x, item.y, d.w, d.h)
-         item = d
+         i = self.items[self.GetIndex(item.x, item.y)] #find the original index pointed to by the dummy
+         self.RemoveItem(item.x, item.y, i.w, i.h)
+         item = i
       else: return None
 
       return item
@@ -117,14 +125,15 @@ class Inventory(object):
       return index%4, index/4
 
    #### Public functions (The only ones the mouse system should access :P) ########################################
-
+   #### x and y are mouse positions for these functions
    def UseItem(self, x, y):
+      
       x -= self.left
       y -= self.top
 
       item = self.items[self.GetIndex(int(x/16),int(y/16))]
 
-      if isinstance(item, Item):
+      if isinstance(item, Item): #make doubly sure it's an item before trying to use it..
          item.Use()
          if isinstance(item, Stackable) and item.count == 0:
             self.RemoveItem(int(x/16), int(y/16), item.w, item.h)
@@ -253,18 +262,20 @@ class Equip(object):
 #### Generic Item Objects ###########################################################################################
 
 class Item(object):
-   def __init__(self, img, w, h, name, count=1, countable=False):
+   def __init__(self, img, w, h, name, count=1, countable=False, imgused=None):
       self.img = img
       self.w = w
       self.h = h
       self.count = count
       self.countable = countable
       self.name = name
+      if imgused is not None:
+        self.imgused = imgused
 
    def Draw(self, x, y):
       ika.Video.Blit(self.img, x, y)
       if self.countable:
-         if self.count > 0:
+         if self.count > 0: #print in white if at least 1 left. Works up to 99, no ammo/stacks higher than this
             engine.engine.itemfont.Print(x + 16*self.w - 6*len(str(self.count))+1, y + 16*self.h - 7, str(self.count))
          else: engine.engine.itemfontgrey.Print(x + 16*self.w - 6, y + 16*self.h - 7, "0")
 
@@ -282,8 +293,8 @@ class DummyItem(object):
 class Weapon(Item):
    def __init__(self, img, w, h, name, count=1, countable=False):
       super(Weapon, self).__init__(img, w, h, name, count, countable)
-      self.attack = 0
-      self.reloadtime = 0
+      self.attack = 0 #attack power
+      self.reloadtime = 0 #ticks per reload
 
 class Pipe(Weapon):
    img = ika.Image("Img/items/pipe.png")
@@ -360,12 +371,36 @@ class Belt2(Belt):
       super(type(self), self).__init__(type(self).img, 2, 1, "Belt #2")
       self.defense = 5
 
+#Keys
+class Key(Item):
+   def __init__(self, img, w, h, name, count=1, countable=False):
+      super(Key, self).__init__(img, w, h, name, count, countable)    
+
+class BlueKey(Key):
+    img = ika.Image("Img/items/key_blue.png")
+    def __init__(self):
+       super(type(self), self).__init__(type(self).img, 1, 1, "Blue Keycard")
+       self.access = 1
+
+class GreenKey(Key):
+    img = ika.Image("Img/items/key_green.png")
+    def __init__(self):
+       super(type(self), self).__init__(type(self).img, 1, 1, "Green Keycard")
+       self.access = 2     
+
+class RedKey(Key):
+    img = ika.Image("Img/items/key_red.png")
+    def __init__(self):
+       super(type(self), self).__init__(type(self).img, 1, 1, "Red Keycard")
+       self.access = 3
+
 
 #General Items
 class Recorder(Item):
    img = ika.Image("Img/items/recorder.png")
+   imgused = ika.Image("Img/items/recorder_used.png")
    def __init__(self, lognumber):
-      super(type(self), self).__init__(type(self).img, 1, 1, "Log Recorder")
+      super(type(self), self).__init__(type(self).img, 1, 1, "Log Recorder", type(self).imgused)
       self.lognumber = lognumber
       self.used = False
    def Use(self):
@@ -374,18 +409,20 @@ class Recorder(Item):
          engine.engine.messages.AddMessage("Log Uploaded to PDA")
          engine.engine.sound.Play("beep1.wav")
          self.used = True
+         self.img = self.imgused
 
-#Stackable Items
+#Stackable Items 
 class Stackable(Item):
    def __init__(self, img, w, h, name, count=1, countable=True):
       super(Stackable, self).__init__(img, w, h, name, count, countable)
+      self.max_count = 0 #override per item  
 
-
+#Ammo
 class Clip(Stackable):
    img = ika.Image("Img/items/clip.png")
    def __init__(self, count=16):
       super(type(self), self).__init__(type(self).img, 1, 1, "Clip", count, True)
-
+      self.max_count = 60
    def Use(self):
       pass
       #engine.engine.Reload(Clip)
@@ -394,16 +431,46 @@ class Shells(Stackable):
    img = ika.Image("Img/items/shells.png")
    def __init__(self, count=12):
       super(type(self), self).__init__(type(self).img, 1, 1, "Shells", count, True)
+      self.max_count = 24
    def Use(self):
       pass
       #engine.engine.Reload(Shells)
 
+class Cells(Stackable):
+   img = ika.Image("Img/items/powercell.png")
+   def __init__(self, count=30):
+      super(type(self), self).__init__(type(self).img, 1, 1, "Power Cells", count, True)
+      self.max_count = 90
+   def Use(self):
+      pass
+
+#Healing items
 class Hypo(Stackable):
    img = ika.Image("Img/items/hypo.png")
    def __init__(self, count=1):
       super(type(self), self).__init__(type(self).img, 1, 1, "Health hypo", count, True)
-
+      self.max_count=5
    def Use(self):
       engine.engine.Heal(20)
       self.count -= 1
 
+class Medkit(Stackable):
+   img = ika.Image("Img/items/medkit.png")
+   def __init__(self, count=1):
+      super(type(self), self).__init__(type(self).img, 1, 1, "Medical kit", count, True)
+      self.max_count=5
+   def Use(self):
+      engine.engine.Heal(50)
+      self.count -= 1
+      
+class Food(Stackable):
+   img = ika.Image("Img/items/foodcan.png")
+   
+   def __init__(self, count=1):
+      super(type(self), self).__init__(type(self).img, 1, 1, "Canned food", count, True)
+      self.max_count=5
+   def Use(self):
+      engine.engine.Heal(10)
+      self.count -= 1
+      
+      

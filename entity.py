@@ -37,7 +37,7 @@ class Projectile(Entity):
         self.distance=0
         self.max_distance = 5
         self.dead=False
-        
+        self.color = ika.RGB(200, 0, 240, 128)
     def Update(self):
         if not self.dead:
             self.time += 1
