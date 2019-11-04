@@ -197,10 +197,10 @@ class Engine(object):
         self.inv = Inventory()
         self.equip = Equip()
         self.entities=[
-                       entity.Vagimon(10,3, ika.Random(0, 4)),
-                       entity.Vagimon(5,8, ika.Random(0, 4)),
-                       entity.Vagimon(7,11, ika.Random(0, 4)),
-                       entity.Vagimon(3,11, ika.Random(0, 4)),
+                       #entity.Vagimon(10,3, ika.Random(0, 4)),
+                       #entity.Vagimon(5,8, ika.Random(0, 4)),
+                       #entity.Vagimon(7,11, ika.Random(0, 4)),
+                       #entity.Vagimon(3,11, ika.Random(0, 4)),
                        entity.Vagimon(11,17, ika.Random(0, 4)),
                        entity.Vagimon(15,7, ika.Random(0, 4)),
                        entity.Vagimon(11,10, ika.Random(0, 4)),

@@ -37,12 +37,12 @@
 			)
 			(data 
 				(format 'zlib')
-				'eJzsmI0KwyAMhHXtfP9H3oSGhcPUv2rruA+CVdPqGSNS58biv7YlzA8e92qs+Y7S4d1v7TyYtZ7okyq17VAfwQb1cJS74S/tr8x3rX4c7yosHeGYS7RdPct6rqQjxSo6ZN/kdLwz352tI84rgEleWv6Rp8dDwDMHz5tVdFj7apXzSjjLj2ivAqsZr5cWHSVYftSRHw/Pq+DS94mUoY+uz9Rxdl5JmZpTLi53xOOs3dJh3b/0+zVx6iV3L+2NB/rNjofu79GBcRupoySfkZJ9pUth1XjMyo/W9WnNj6fpyO0r6f+nfVXzXiu1/xSwXbdhv/VMCCGEEEIIIYQQQgghd/ABAAD//w=='
+				'eJzsmIsKwyAMRbXtSv//i7fBZCHkLlWn1nIPBG18xBgj0hDaEl+yGhIb2/03aL2t/Ijhu3dRCdpP3ccqpWzquwUr0G+OfnHmRe3IXi1o3v2zlrdsop72cyY/LO7mx8OZt7cf0bCZ8hL1D8YYzYh4HIZe3zn6vrmiHymHpX10rma8ryxSTJYTkmOvltI890D96IdvbzfEek9YovvI755+oHmjKK01eXEZEY9feuQHen/J8TlxqsV7l9bGQ/frHQ/ZXuOHjltLP87ks+bMuZJlYtZ49MqP0v0pzY+r+eGdq9R+p3OVM66U3H8KWi91uh3VCSGEEEIIIYQQQgghZARPAAAA//8='
 			)
 			(obstructions 
 				(style 'tile')
 				(format 'zlib')
-				'eJzsVFsOwCAIo/e/9JIpAg66+T26TOOjlgpRJAcGitWU4dritCek0ogrCH3FUNb963j2hKF6K1Y/Sj1CG3GnE+djFxB8vGkoU30Jah/2fb+rTWnlm2sMhrkLw8jAzlPNMudWE1YcoBnEvBp4rzwfMyrEWexTfk2QaPC68lofohKXAD97rEF85HyqwWqBaMCisko/fBkOX59Go9H4Iy4AAAD//w=='
+				'eJzsUlsOgDAIo/e/tPHB6CZl+k8TpwOhFDDLgRvCm0bQKbK9YYrj9Ky5NxzOdD/XPd67ihEc4FvO4YdRdqV8/AVMOiQHHh2YdFwfsruGl9YPvfJomoeOwKg4JsOdEDoozjnlzGMnYjlQThBPa0aXV3WyKsxWrCb2GRKO3V7Zn6qMBsDW3xyFjjy+5Kh2oeAAbf2Oo0Ia0Wg0Gg3HAQAA//8='
 			)
 			(entities )
 			(zones )
@@ -70,7 +70,7 @@
 			)
 			(data 
 				(format 'zlib')
-				'eJzs2OGugiAYBmAvosj7v9Lih4tDgig2zvJ5tibMZe5FPqRp4qrC6BuATvfXZ66crz3jj5Pv5eqWPI/UldtGPx1j4zbWXGhzTKxhIeuX5PNiYS3/jnl6P+Nba0lI2un3adPzDNfWjzk70i7mGKa/ecb+UqPWalU+jrX1Omyc51PPe9aatMaded0ruGXHmtq6Hi2553VK3WqT55TWlVq92vsbxmOsOE+MwX4xszS7tQxba7//Vfrl+R9Zdx+FNudJx2Ut41Lu3qPOtWev0Jq9OTOeecIvUlvGa9nvlepPS13q3U9eUZ7rnr2cvAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgP/uCQAA//8='
+				'eJzs2GuOgyAUBlAX0Vr3v9IOP8yQW0FQJ0zqOUkjxD7MRT6k08RdzaMvAE56/ryWyvnaPf66+Frubq3nkVx57PTzMTZuYy2FNsekDJtDvyTOi5W1/G8s0+89vreWzFk7/zztjt7HtfVjCUf6xDFJ/TWjtrIqvr+2Xs875/l05jlrS55xV37vHTzCsaa2ridr3WNOya02sU55rtTyqvc3jMdYaZ4Yg36pZnnttmrYmv3+Vzkv1v/IuvsqtLlOPi5bNS7V3XPUtXr2Cq21N2fGM0/4RrJlvJb9Xil/WnLp7H7yjmJde/Zy6g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPx3bwAAAP//'
 			)
 			(obstructions 
 				(style 'tile')
@@ -136,7 +136,7 @@
 			)
 			(data 
 				(format 'zlib')
-				'eJzs1TEKwCAMBVAvVHAt1MX2/meqg0NxdGgE34NPMv4lJCVgxh1dABb1vY3ccvT9ajn/r7O90ucT2oKRHxKrRhcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACW9wIAAP//'
+				'eJzs1TEKgDAQRcFcSEgrKAT1/mcyRRpbmx9xBpbd8nVbCvDGmQ6AD6h9lnFvfdZgy99d6QAe/JCcPR0AkzvGbskIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAJ3AAAAP//'
 			)
 			(obstructions 
 				(style 'tile')
