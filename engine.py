@@ -578,7 +578,7 @@ class Engine(object):
                self.sound.Play("fire_pistol.wav")
                hurt = True
                offx, offy = self.offtable[self.facing]
-               self.entities.append(entity.Projectile(self.plrx+offx,self.plry+offy, self.facing))
+               #self.entities.append(entity.Projectile(self.plrx+offx,self.plry+offy, self.facing)) 
                
                
             else:
@@ -879,10 +879,10 @@ class Engine(object):
 
 
         ##### Drawing logic. Draws from back to front. #########################################
-        
+        ika.Video.ClipScreen(self.left, self.top, self.left+224, self.top+128)
         ##### Row 3 ############################################################################
         
-        #Currently subtracting 1 from every tile value as the indexes are 0 based. Can fix by adding a dummy wall...        
+        
         
         #side walls
         pwalldicts = [ { 17: "per4farleft", 18: "per4left", 20: "per4right", 21: "per4farright"},
@@ -1059,7 +1059,9 @@ class Engine(object):
               if b_decals[key] :  #and facing is correct
                 self.decalimages[decals[key]][val].Blit(self.left, self.top)
 
-
+        ika.Video.ClipScreen() 
+        
+        ##### Drawing done! #####
 
 
 	#self.cw1[0].Blit(self.left, self.top)
@@ -1254,6 +1256,5 @@ class Messages(object): #two message lines under the dungeon window
 
 
 engine = Engine()
-
 engine.Run()
 
