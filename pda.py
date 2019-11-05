@@ -18,7 +18,7 @@ class PDA(object):
       self.closebox = ika.Image("Img/ui/closebox.png")
 
       self.scroll = 0
-      self.page = 0 #0 = list, 1 = message
+      self.page = 0 #For Log mode. 0 =  view list, 1 = view message
       self.highlight = -1
 
       self.fulllogs = self.LoadLogs()
@@ -28,7 +28,6 @@ class PDA(object):
       self.hlfont = ika.Font('fonts/log_white.fnt')
 
    def Draw(self):
-
 
       x = engine.engine.MouseX()
       y = engine.engine.MouseY()
@@ -60,10 +59,13 @@ class PDA(object):
          self.font.Print(13,194, "Attack:   "+str(engine.engine.attack))
          self.font.Print(13,204, "Defense:  "+str(engine.engine.defense))
 
-      if self.mode == 3: #Logs :D
+      if self.mode == 2: #Objectives, currently unused
+         pass
+         
+      if self.mode == 3: #Logs
          num = 0
 
-         if self.page == 0: #Log List
+         if self.page == 0: #View log List
             highlighted = False
             for i in range(min(6, len(self.logs))):
                if x > 13 and x <13 + self.font.StringWidth(self.logs[i][1]) and y > 174+10*i and y < 174+10*(i+1):
