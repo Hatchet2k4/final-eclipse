@@ -37,12 +37,12 @@
 			)
 			(data 
 				(format 'zlib')
-				'eJzsmOsOgyAMhQWdmXv/B55/yJqmZ+UyUJbzJQ1akHooEMKy9CWcthoWOsf9Neh/e+kIy2fsgrDjtJdhh2q3glLapt57sAL/5vij0y+qR/FaQf0ewJ/Gkzr6UKvj4fQ7WkcAMWfMx9Pw631J7zd31BFF3FTuoP1s+xXSkXISM6wkXis1OnJA7ajDj7cbZp0nLNNt5PtIHajfIErrn7y8XJGPb36kA52/5PcleWrFO5e25kO3G50PWd+iQ+etp46c9azJmVeyTMyaj1Hro3Z8atfH3XR48yrV/9O8KvmuFnlfYN3R6DsF7Zc+XY+eCSGEEEIIIYQQQggh5AreAAAA//8='
+				'eJzsmOsOgyAMhUGd0b3/A88/ZE3Ts3IR1OV8SYOWSz0UCDGEvsTDZsNi57hng763l44YvnMXhe2HvQ3bVbsZlNIW9d6DGfgXxz8546J6FK8VNO4O/Gk+qaMPtTpezrijdUQQ84n52Ay/Ppf0eXNHHZOIm8oVtD/rvPL6l4LmB+lIOZkyrCReKzU6ckDtqMOPtxpm3Scs023k+0gdaNwoSuubvLxckY9ffqQD3b9k/5I8teLdS1vzoduNzoesb9Gh89ZTR85+1uSsK1kmnpqPUfujdn5q98fddHjrKtX/07oq6VeL/F9g/aPR/xS0X/p0PXomhBBCCCGEEEIIIYSQK/gAAAD//w=='
 			)
 			(obstructions 
 				(style 'tile')
 				(format 'zlib')
-				'eJzsUkkSwCAII///dKcLJY4E9U4OVqshLDHLgRfiNmXQKqLNMKVx38xRS41hxbOL7w7Dc+VTyoAvRtFV5f8rYKhDarwM74+/fTayu4ap1u1eDfPQDPwZx8i4E6IO4rmmnHl4IsyBcoL4WkNe2ZvHmMKnprIyJBorX9lJVkYD4L/HGkUdOb/UqLxQaIBcv9KokDIajUaj4bgAAAD//w=='
+				'eJzsUkkSwCAII///dKcLGi1BvZMDtWgIm1kMvBC3IYOsiPaHKY37Zo690BgsnlP/7jA8V/4LGXBjFF1V3l4BQx1S42V4f/ztc5DdNfxq3e7VMA/NQMu4T4Y7IeognmvKmfed6MuBdIL4WtO6PFcns8LoxeziO0OgsdorO8nKaADsPdZI6oj5qUa2C4kGaOtXGhlCRqFQKBQcFwAAAP//'
 			)
 			(entities )
 			(zones )

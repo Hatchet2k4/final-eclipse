@@ -295,12 +295,9 @@ class Engine(object):
             ika.Input.Update()
 
             self.UpdateStats()
-            self.Move()
+            self.Move()            
             
-            
-            
-            
-            
+                     
 
             #main hud drawing
             ika.Video.Blit(self.hudmain, 0, 0)
@@ -794,10 +791,16 @@ class Engine(object):
         f_items = [None]*25
 
         item_offset = [0]*25
-
+        
+        b_obj = [False] * 25
         obj = [0]*25
+        
+        b_walls = [False] * 25
         walls = [1]*25
+        
+        b_decals = [False] * 25
         decals = [0]*25
+        
         decalf = [0]*25 #decal facing
 
         x = 0
@@ -820,6 +823,10 @@ class Engine(object):
                 
                     
                 walls[t] = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 0) #Wall layer
+                if walls[t] > 0 and walls[t] < self.objnum:
+                    walls[t]-=1 #walls are 0 based, so subtract 1 to get the correct index for the image
+                    b_walls[t]=True #wall exists here
+                
                 
                 if self.pda.mode == 2: #hack! Draw a facing view when in Obj mode of PDA
                     if t==1: self.tiles[2].Blit(100+8*x, 199+8*y)
@@ -833,6 +840,7 @@ class Engine(object):
                 d = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 3) #Decal layer
                 if d>=self.decalnum and d<100: #within decal range, currently tiles 40+
                     d-=self.decalnum
+                    b_decals[t]=True
                     try: 
                        dec = int(d /4) #get the decal tile number
                        facing = d % 4 #get the facing number                      
@@ -845,6 +853,7 @@ class Engine(object):
                 
                 if o>=self.objnum and o<self.decalnum: #within object range, currently tiles 20-40
                   o-=self.objnum
+                  b_obj[t] = True
                   try: 
                      obj[t] = o # self.objectimages[o]
                   except IndexError: 
@@ -860,7 +869,7 @@ class Engine(object):
                    f_items[t] = self.items[(int(self.plrx+x), int(self.plry+y))]
                    if o<2: #hack to draw items at proper height on tables, object numbers 0 and 1
                       item_offset[t] = 32/(i+1)
-                   elif o-self.objnum==4: #crate 
+                   elif o==4: #crate 
                       item_offset[t] = 32/(i+1) + 24
 
                 j += 1
@@ -895,15 +904,15 @@ class Engine(object):
 
         
         for key, val in pwalldicts[0].items():
-              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)
-              if decals[key]:  #and facing is correct
-                self.decalimages[decals[key]-1][val].Blit(self.left, self.top)
+              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
+              if b_decals[key]:  #and facing is correct
+                self.decalimages[decals[key]][val].Blit(self.left, self.top)
   
         ##### Row 2 ############################################################################
 
         for key, val in objdicts[1].items():
           try:
-           if obj[key]: self.objectimages[obj[key]][val].Blit(self.left, self.top)
+           if b_obj[key]: self.objectimages[obj[key]][val].Blit(self.left, self.top)
           except:
            ika.Log("key: "+str(key))
            ika.Log("obj[key]: "+str(obj[key]))
@@ -942,13 +951,13 @@ class Engine(object):
         #for(
 
         for key, val in fwalldicts[1].items():              
-              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)              
-              if decals[key]: 
+              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)              
+              if b_decals[key]: 
                    self.decalimages[decals[key]][val].Blit(self.left, self.top)
 
         for key, val in pwalldicts[1].items():
-              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)
-              if decals[key] :  #and facing is correct
+              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
+              if b_decals[key] :  #and facing is correct
                 self.decalimages[decals[key]][val].Blit(self.left, self.top)
 
 
@@ -958,7 +967,7 @@ class Engine(object):
 
         for key, val in objdicts[2].items():
           try:
-           if obj[key]: self.objectimages[obj[key]][val].Blit(self.left, self.top)
+           if b_obj[key]: self.objectimages[obj[key]][val].Blit(self.left, self.top)
           except:
            ika.Log("key: "+str(key))
            ika.Log("obj[key]: "+str(obj[key]))
@@ -995,20 +1004,20 @@ class Engine(object):
                elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
 
         for key, val in fwalldicts[2].items():
-              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)
-              if decals[key]: 
-                   self.decalimages[decals[key]-1][val].Blit(self.left, self.top)
+              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
+              if b_decals[key]: 
+                   self.decalimages[decals[key]][val].Blit(self.left, self.top)
                    
         for key, val in pwalldicts[2].items():
-              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)
-              if decals[key] :  #and facing is correct
-                self.decalimages[decals[key]-1][val].Blit(self.left, self.top)
+              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
+              if b_decals[key] :  #and facing is correct
+                self.decalimages[decals[key]][val].Blit(self.left, self.top)
 
 
 
         ##### Row 0 ############################################################################
         for key, val in objdicts[3].items():
-           if obj[key]: self.objectimages[obj[key]][val].Blit(self.left, self.top)
+           if b_obj[key]: self.objectimages[obj[key]][val].Blit(self.left, self.top)
            
         #if(obj[4]): obj[4][0].Blit(self.left, self.top)
         #if(obj[5]): obj[5][1].Blit(self.left, self.top)
@@ -1041,14 +1050,14 @@ class Engine(object):
                elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), 198+32, 30+32, e.color)   
 
         for key, val in fwalldicts[3].items():
-              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)
-              if decals[key] :  #and facing is correct
-                   self.decalimages[decals[key]-1][val].Blit(self.left, self.top)
+              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
+              if b_decals[key] :  #and facing is correct
+                   self.decalimages[decals[key]][val].Blit(self.left, self.top)
 
         for key, val in pwalldicts[3].items():
-              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)
-              if decals[key] :  #and facing is correct
-                self.decalimages[decals[key]-1][val].Blit(self.left, self.top)
+              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
+              if b_decals[key] :  #and facing is correct
+                self.decalimages[decals[key]][val].Blit(self.left, self.top)
 
 
 
