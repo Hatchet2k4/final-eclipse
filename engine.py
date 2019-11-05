@@ -63,9 +63,14 @@ class Engine(object):
 
 		#self.texturetest=ika.Image("Img/Walls/texturetest.png")\
         self.deck = ""
+        
+        
         self.backgrounds = {}
-        self.objects = []
-        self.decals = []
+        self.wallimages = [] #list of dicts for wall images. access as self.wallimages[tile number]['flat1left'] to get the image "
+        self.objectimages = [] #simpler currently, list of lists of object images
+        self.decalimages = [] #list of dicts for decal images
+        
+        
         self.objnum = 20 #objects start at 20 in the map
         self.decalnum = 40
         self.arrows = []
@@ -80,13 +85,14 @@ class Engine(object):
         self.backflip = 0
         self.moved = False
 
-
-        #self.LoadWalls("medsci")
+        
+        self.NewGame() #initialize settings
+        
         self.LoadWalls()
         self.LoadDecals()
         self.LoadObjects()
         
-        self.LoadDeck("final")
+        self.LoadDeck("medsci")
         
 
         self.handframes = [ika.Image("Img/weapons/fp_handr.png"),
@@ -113,51 +119,40 @@ class Engine(object):
         self.offtable_l = [(-1, 0), (0, -1), (1, 0), (0, 1)]
         self.offtable_r = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
+        
+
     def LoadDeck(self, deck):
+    
+        ika.Map.Switch('medsci.ika-map')
         self.deck = deck
         self.back = self.backgrounds[deck]
-
-    def LoadWalls(self):
-       
+        
+        self.entities = self.global_entities[deck]
+        self.items = self.global_items[deck]
+        
+        self.music = ika.Music("music/medsci.ogg") #change per deck
+        self.music.loop = True
+        self.music.Play()
+        
+    def LoadWalls(self):       #combine all into one LoadAssets call
        decklist = ["medsci", "office", "operations", "barracks", "final"]
        for d in decklist:     
            self.backgrounds[d] = [ika.Image("img/backgrounds/"+d+"1.png"), ika.Image("img/backgrounds/"+d+"2.png")]
-       
-       
-       
-       #if deck == "medsci":
+
        walllist = ["med1", "med2", "med1win", "med1door", "med2door", "military", "militarydoor", "bed", "final", "finalspace"]          
        
-       
+       imglist = ["flat1left", "flat1mid", "flat1right", "per1left", "per1right", "flat2left", "flat2mid", "flat2right", 
+                  "per2left", "per2right",  "flat3left",  "flat3mid", "flat3right", "per3left", "per3right",
+                  "per4farleft", "per4left",  "per4right",  "per4farright"] 
           
-       for path in walllist:
-
-         self.lw0.append(ika.Image("img/walls/"+path+"/flat1left.png"))
-         self.cw0.append(ika.Image("img/walls/"+path+"/flat1mid.png"))
-         self.rw0.append(ika.Image("img/walls/"+path+"/flat1right.png"))
-
-         self.lp0.append(ika.Image("img/walls/"+path+"/per1left.png"))
-         self.rp0.append(ika.Image("img/walls/"+path+"/per1right.png"))
-
-         self.lw1.append(ika.Image("img/walls/"+path+"/flat2left.png"))
-         self.cw1.append(ika.Image("img/walls/"+path+"/flat2mid.png"))
-         self.rw1.append(ika.Image("img/walls/"+path+"/flat2right.png"))
-
-         self.lp1.append(ika.Image("img/walls/"+path+"/per2left.png"))
-         self.rp1.append(ika.Image("img/walls/"+path+"/per2right.png"))
-
-         self.lw2.append(ika.Image("img/walls/"+path+"/flat3left.png"))
-         self.cw2.append(ika.Image("img/walls/"+path+"/flat3mid.png"))
-         self.rw2.append(ika.Image("img/walls/"+path+"/flat3right.png"))
-
-         self.lp2.append(ika.Image("img/walls/"+path+"/per3left.png"))
-         self.rp2.append(ika.Image("img/walls/"+path+"/per3right.png"))
-
-         self.flp3.append(ika.Image("img/walls/"+path+"/per4farleft.png"))
-         self.lp3.append(ika.Image("img/walls/"+path+"/per4left.png"))
-         self.rp3.append(ika.Image("img/walls/"+path+"/per4right.png"))
-         self.frp3.append(ika.Image("img/walls/"+path+"/per4farright.png"))
-
+       for path in walllist:         
+         
+         wall = { }
+         for img in imglist: 
+            wall[img] = ika.Image("img/walls/"+path+"/"+img+".png")
+         
+         self.wallimages.append(wall)
+         
     def LoadObjects(self):
        objlist = ["table", "medtable", "blood_floor1", "blood_floor2", "crate"]
        filelist = ["1left.png", "1mid.png","1right.png",
@@ -168,52 +163,27 @@ class Engine(object):
           obj = []
           for img in filelist:
              obj.append(ika.Image("img/objects/"+path+"/"+img))
-          self.objects.append(obj)
+          self.objectimages.append(obj)
 
     def LoadDecals(self):
         decallist = ["door", "dcode_r", "dcode_g", "dkey_r", "dkey_g", "blood_sm", "blood_big", "switch1", "switch2"] #order is important, based on order in tileset. /4 for each direction
-        filelist = ["flat1left.png", "flat1mid.png","flat1right.png", "per1left.png", "per1right.png",
-               "flat2left.png", "flat2mid.png","flat2right.png", "per2left.png", "per2right.png",
-               "flat3left.png", "flat3mid.png","flat3right.png", "per3left.png", "per3right.png",
-               "per4left.png", "per4right.png", "per4left.png", "per4farleft, per4farright.png"]
         
-        for path in decallist:      
-            d=Decal()
-            d.lw0 = ika.Image("img/decals/"+path+"/flat1left.png")
-            d.cw0 = ika.Image("img/decals/"+path+"/flat1mid.png")
-            d.rw0 = ika.Image("img/decals/"+path+"/flat1right.png")
+        imglist = ["flat1left", "flat1mid", "flat1right", "per1left", "per1right", "flat2left", "flat2mid", "flat2right", 
+                  "per2left", "per2right",  "flat3left",  "flat3mid", "flat3right", "per3left", "per3right",
+                  "per4farleft", "per4left",  "per4right",  "per4farright"] 
+                  
+        for path in decallist:    
+            d = {}
+            for img in imglist: 
+                d[img] = ika.Image("img/decals/"+path+"/"+img+".png")
 
-            d.lp0 = ika.Image("img/decals/"+path+"/per1left.png")
-            d.rp0 = ika.Image("img/decals/"+path+"/per1right.png")
-
-            d.lw1 = ika.Image("img/decals/"+path+"/flat2left.png")
-            d.cw1 = ika.Image("img/decals/"+path+"/flat2mid.png")
-            d.rw1 = ika.Image("img/decals/"+path+"/flat2right.png")
-
-            d.lp1 = ika.Image("img/decals/"+path+"/per2left.png")
-            d.rp1 = ika.Image("img/decals/"+path+"/per2right.png")
-
-            d.lw2 = ika.Image("img/decals/"+path+"/flat3left.png")
-            d.cw2 = ika.Image("img/decals/"+path+"/flat3mid.png")
-            d.rw2 = ika.Image("img/decals/"+path+"/flat3right.png")
-
-            d.lp2 = ika.Image("img/decals/"+path+"/per3left.png")
-            d.rp2 = ika.Image("img/decals/"+path+"/per3right.png")
-
-            d.flp3 = ika.Image("img/decals/"+path+"/per4farleft.png")
-            d.lp3 = ika.Image("img/decals/"+path+"/per4left.png")
-            d.rp3 = ika.Image("img/decals/"+path+"/per4right.png")
-            d.frp3 = ika.Image("img/decals/"+path+"/per4farright.png")
-            self.decals.append(d) 
+            self.decalimages.append(d) 
 
     def NewGame(self):
         self.inv = Inventory()
         self.equip = Equip()
-        self.entities=[
-                       #entity.Vagimon(10,3, ika.Random(0, 4)),
-                       #entity.Vagimon(5,8, ika.Random(0, 4)),
-                       #entity.Vagimon(7,11, ika.Random(0, 4)),
-                       #entity.Vagimon(3,11, ika.Random(0, 4)),
+        
+        self.global_entities = { "medsci": [
                        entity.Vagimon(11,17, ika.Random(0, 4)),
                        entity.Vagimon(15,7, ika.Random(0, 4)),
                        entity.Vagimon(11,10, ika.Random(0, 4)),
@@ -246,9 +216,16 @@ class Engine(object):
                        entity.Walker(26,3, ika.Random(0, 4)),
                        entity.Walker(29,3, ika.Random(0, 4)),
                        entity.Walker(26,5, ika.Random(0, 4))
-                       ]
+                       ], 
+                       "office": [],
+                       "operations": [],
+                       "barracks": [],
+                       "final": []                       
+                       }
+                       
+        
 
-        self.items = {
+        self.global_items = { "medsci": {
                        (4, 6) : [Pipe(), Pistol(16)],
                        (3, 6) : [BlueKey()],
                        (9,5) : [Armor1()],
@@ -282,6 +259,11 @@ class Engine(object):
                        (11,9) : [Recorder(4)],
                        (17,11) : [Recorder(5)],
                        (29,21) : [Recorder(6)]
+                     },
+                        "office": {},
+                       "operations": {},
+                       "barracks": {},
+                       "final": {}   
                      }
 
         self.health = 70
@@ -305,9 +287,7 @@ class Engine(object):
         self.reloading = False
         self.animtimer = 0
 
-        self.music = ika.Music("music/medsci.ogg")
-        self.music.loop = True
-        self.music.Play()
+        
 
     def Run(self):
 
@@ -422,7 +402,9 @@ class Engine(object):
         return ika.Input.mouse.right.Position()
     def MouseM(self):
         return ika.Input.mouse.middle.Position()
-
+    def MouseW(self):
+        #mousewheel doesn't currently work, returns 0 or false for position/pressed. Goal - recompile ika and finish mousewheel support! 
+        return ika.Input.mouse.wheel.Position() 
 
     def MouseClicked(self):
         return ika.Input.mouse.left.Pressed() or ika.Input.mouse.right.Pressed()
@@ -857,7 +839,7 @@ class Engine(object):
                     try: 
                        dec = int(d /4) #get the decal tile number
                        facing = d % 4 #get the facing number
-                       #decals[t] = self.decals[dec]
+                       #decals[t] = self.decalimages[dec]
                        decals[t] = dec
                     except IndexError: 
                         ika.Log("d:" + str(d))
@@ -867,7 +849,7 @@ class Engine(object):
                 if o>=self.objnum and o<self.decalnum: #within object range, currently tiles 20-40
                   o-=self.objnum
                   try: 
-                     obj[t] = self.objects[o]
+                     obj[t] = self.objectimages[o]
                   except IndexError: 
                       #sometimes get very odd results for o when reading outside map bounds..
                       ika.Log("t:" + str(t))
@@ -895,18 +877,47 @@ class Engine(object):
 
 
 
-
+        ##### Drawing logic. Draws from back to front. #########################################
+        
         ##### Row 3 ############################################################################
-        if(walls[17]): self.flp3[walls[17]-1].Blit(self.left, self.top)
-        if(walls[18]): self.lp3[walls[18]-1].Blit(self.left, self.top)
-        if(walls[20]): self.rp3[walls[20]-1].Blit(self.left, self.top)
-        if(walls[21]): self.frp3[walls[21]-1].Blit(self.left, self.top)
+        
+        #Currently subtracting 1 from every tile value as the indexes are 0 based. Can fix by adding a dummy wall...        
+        
+        #side walls
+        pwalldicts = [ { 17: "per4farleft", 18: "per4left", 20: "per4right", 21: "per4farright"},
+                       { 10: "per3left" , 12: "per3right" },
+                       { 4: "per2left", 6: "per2right"},
+                       { 0: "per1left", 2: "per1right"} ]
+                                             
+        #flat walls    
+        fwalldicts = [ { }, #empty dict here as flat walls do not have a 4th row
+                       {18: "flat3left", 19: "flat3mid", 20: "flat3right" },
+                       {10: "flat2left", 11: "flat2mid", 12: "flat2right" },
+                       {4: "flat1left", 5: "flat1mid", 6: "flat1right" }
+        ]
+        
+
+        
+
+        
         """
-        if(decals[17]): decals[17].flp3.Blit(self.left, self.top)
-        if(decals[18]): decals[18].lp3.Blit(self.left, self.top)
-        if(decals[20]): decals[20].rp3.Blit(self.left, self.top)
-        if(decals[21]): decals[21].frp3.Blit(self.left, self.top)
+        imglist = ["flat1left", "flat1mid", "flat1right", "per1left", "per1right", "flat2left", "flat2mid", "flat2right", 
+                  "per2left", "per2right",  "flat3left",  "flat3mid", "flat3right", "per3left", "per3right",
+                  "per4farleft", "per4left",  "per4right",  "per4farright"] 
         """
+        
+        for key, val in pwalldicts[0].items():
+            try:
+              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)
+              if decals[key] :  #and facing is correct
+                self.decalimages[walls[key]-1][val].Blit(self.left, self.top)
+            except:    
+              ika.Log("key: "+str(key))
+              ika.Log("val: "+str(val))
+              ika.Log("walls[val]-1: "+str(walls[val]-1))
+              walls[val]-1
+              ika.Log("exception: "+str(e))
+              raise
         ##### Row 2 ############################################################################
 
         if(obj[18]): obj[18][6].Blit(self.left, self.top)
@@ -938,18 +949,18 @@ class Engine(object):
                if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 152, 36)
                elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 152+12, 36+12)
 
-        if(walls[18]): self.lw2[walls[18]-1].Blit(self.left, self.top)
-        if(walls[19]): self.cw2[walls[19]-1].Blit(self.left, self.top)
-        if(walls[20]): self.rw2[walls[20]-1].Blit(self.left, self.top)
+        for key, val in fwalldicts[row].items():              
+              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)              
+              if decals[key]: 
+                   self.decalimages[walls[key]-1][val].Blit(self.left, self.top)
 
-        if(walls[10]): self.lp2[walls[10]-1].Blit(self.left, self.top)
-        if(walls[12]): self.rp2[walls[12]-1].Blit(self.left, self.top)
-        
-        if(decals[18]): self.decals[decals[18]-1].lw2.Blit(self.left, self.top)
-        if(decals[19]): self.decals[decals[19]-1].cw2.Blit(self.left, self.top)
-        if(decals[20]): self.decals[decals[20]-1].rw2.Blit(self.left, self.top)
-        if(decals[10]): self.decals[decals[10]-1].lp2.Blit(self.left, self.top)
-        if(decals[12]): self.decals[decals[12]-1].rp2.Blit(self.left, self.top)
+        for key, val in pwalldicts[1].items():
+              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)
+              if decals[key] :  #and facing is correct
+                self.decalimages[walls[key]-1][val].Blit(self.left, self.top)
+
+
+
 
         ##### Row 1 ############################################################################
 
@@ -983,22 +994,18 @@ class Engine(object):
                if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 170, 32)
                elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
 
+        for key, val in fwalldicts[2].items():
+              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)
+              if decals[key]: 
+                   self.decalimages[walls[key]-1][val].Blit(self.left, self.top)
+                   
+        for key, val in pwalldicts[2].items():
+              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)
+              if decals[key] :  #and facing is correct
+                self.decalimages[walls[key]-1][val].Blit(self.left, self.top)
 
-        if(walls[10]): self.lw1[walls[10]-1].Blit(self.left, self.top)
-        if(walls[11]): self.cw1[walls[11]-1].Blit(self.left, self.top)
-        if(walls[12]): self.rw1[walls[12]-1].Blit(self.left, self.top)
 
-        if(walls[4]): self.lp1[walls[4]-1].Blit(self.left, self.top)
-        if(walls[6]): self.rp1[walls[6]-1].Blit(self.left, self.top)
 
-        #do facing..
-        """
-        if(decals[10]): decals[10].lw1.Blit(self.left, self.top)
-        if(decals[11]): decals[11].cw1.Blit(self.left, self.top)
-        if(decals[12]): decals[12].rw1.Blit(self.left, self.top)
-        if(decals[4]): decals[4].lp1.Blit(self.left, self.top)
-        if(decals[6]): decals[6].rp1.Blit(self.left, self.top)
-        """
         ##### Row 0 ############################################################################
 
         if(obj[4]): obj[4][0].Blit(self.left, self.top)
@@ -1031,25 +1038,18 @@ class Engine(object):
                if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
                elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), 198+32, 30+32, e.color)   
 
-        if(walls[4]): self.lw0[walls[4]-1].Blit(self.left, self.top)
-        if(walls[5]): self.cw0[walls[5]-1].Blit(self.left, self.top)
-        if(walls[6]): self.rw0[walls[6]-1].Blit(self.left, self.top)
+        for key, val in fwalldicts[3].items():
+              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)
+              if decals[key] :  #and facing is correct
+                   self.decalimages[walls[key]-1][val].Blit(self.left, self.top)
 
-        #do facing..
-        if(decals[4]): self.decals[decals[4]-1].lw0.Blit(self.left, self.top)
-        if(decals[5]): self.decals[decals[5]-1].cw0.Blit(self.left, self.top)
-        if(decals[6]): self.decals[decals[6]-1].rw0.Blit(self.left, self.top)
+        for key, val in pwalldicts[3].items():
+              if walls[key]: self.wallimages[walls[key]-1][val].Blit(self.left, self.top)
+              if decals[key] :  #and facing is correct
+                self.decalimages[walls[key]-1][val].Blit(self.left, self.top)
 
 
-        #if f_items[1]:
-        #   for i in f_items[1]: ika.Video.Blit(i.img, 110, 110)
 
-        # diagonal walls row 0
-        if(walls[0]): self.lp0[walls[0]-1].Blit(self.left, self.top)
-        if(walls[2]): self.rp0[walls[2]-1].Blit(self.left, self.top)
-        
-        if(decals[0]): self.decals[decals[0]-1].lp0.Blit(self.left, self.top)
-        if(decals[2]): self.decals[decals[2]-1].rp0.Blit(self.left, self.top)
 
 	#self.cw1[0].Blit(self.left, self.top)
 	#self.texturetest.Blit(self.left+15, self.top+6)
@@ -1151,6 +1151,34 @@ class Engine(object):
        self.music.Pause()
        credits.Start()
 
+class Wall(object): 
+    def __init__(self):
+        self.lw0=None
+        self.cw0=None
+        self.rw0=None
+        self.lp0=None
+        self.rp0=None
+                 
+        self.lw1=None
+        self.cw1=None
+        self.rw1=None
+        self.lp1=None
+        self.rp1=None
+                 
+        self.lw2=None
+        self.cw2=None
+        self.rw2=None
+        self.lp2=None
+        self.rp2=None
+
+        self.flp3=None
+        self.lp3=None
+        self.rp3=None
+        self.frp3=None
+
+class Obj(object): #not currently used
+    pass
+
 class Decal(object): 
     def __init__(self):
         self.lw0=None
@@ -1212,9 +1240,9 @@ class Messages(object): #two message lines under the dungeon window
       for i, m in enumerate(self.msg):
          engine.tinyfont.Print(10, 144+10*i, m)
 
-ika.Map.Switch('medsci.ika-map')
+
 
 engine = Engine()
-engine.NewGame()
+
 engine.Run()
 
