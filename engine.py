@@ -61,8 +61,9 @@ class Engine(object):
         self.rp3=[]
         self.frp3=[]
 
-		#self.texturetest=ika.Image("Img/Walls/texturetest.png")
-
+		#self.texturetest=ika.Image("Img/Walls/texturetest.png")\
+        self.deck = ""
+        self.backgrounds = {}
         self.objects = []
         self.decals = []
         self.objnum = 20 #objects start at 20 in the map
@@ -80,11 +81,13 @@ class Engine(object):
         self.moved = False
 
 
-
         #self.LoadWalls("medsci")
-        self.LoadWalls("operations")
+        self.LoadWalls()
         self.LoadDecals()
         self.LoadObjects()
+        
+        self.LoadDeck("final")
+        
 
         self.handframes = [ika.Image("Img/weapons/fp_handr.png"),
                            ika.Image("Img/weapons/fp_handr_punch1.png"),
@@ -110,11 +113,21 @@ class Engine(object):
         self.offtable_l = [(-1, 0), (0, -1), (1, 0), (0, 1)]
         self.offtable_r = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
-    def LoadWalls(self, deck):
-       walllist = []
+    def LoadDeck(self, deck):
+        self.deck = deck
+        self.back = self.backgrounds[deck]
+
+    def LoadWalls(self):
+       
+       decklist = ["medsci", "office", "operations", "barracks", "final"]
+       for d in decklist:     
+           self.backgrounds[d] = [ika.Image("img/backgrounds/"+d+"1.png"), ika.Image("img/backgrounds/"+d+"2.png")]
+       
+       
+       
        #if deck == "medsci":
-       walllist = ["med1", "med2", "med1win", "med1door", "med2door", "military", "militarydoor", "bed"]          
-       self.back=[ika.Image("img/backgrounds/"+deck+"1.png"), ika.Image("img/backgrounds/"+deck+"2.png")]
+       walllist = ["med1", "med2", "med1win", "med1door", "med2door", "military", "militarydoor", "bed", "final", "finalspace"]          
+       
        
           
        for path in walllist:
