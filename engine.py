@@ -55,8 +55,8 @@ class Engine(object):
         self.decalimages = [] #list of dicts for decal images
         
         
-        self.objnum = 20 #objects start at 20 in the map
-        self.decalnum = 40
+        self.objnum = 20 #objects currently start at tile 20 in the map editor        
+        self.decalnum = 80 #decals currently start at tile 20 in the map editor
         
         self.arrows = [] #images of arrows for automap
         
@@ -83,6 +83,12 @@ class Engine(object):
         self.offtable = [(0,-1), (1, 0), (0, 1), (-1,0)]
         self.offtable_l = [(-1, 0), (0, -1), (1, 0), (0, 1)]
         self.offtable_r = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+
+        ### Dicts to determine decal facing. Key is player facing, and returns the side on which the decal should be visible from that direction.
+        self.decalf_vis = { NORTH: SOUTH, EAST: WEST, SOUTH: NORTH, WEST: EAST } #front
+        self.decall_vis = { NORTH: EAST, EAST: SOUTH, SOUTH: WEST, WEST: NORTH } #left perspective
+        self.decalr_vis = { NORTH: WEST, EAST: NORTH, SOUTH: EAST, WEST: SOUTH } #right perspective
+        
 
         #assets = [self.handframes, self.pipeframes, self.pistolframes, self.shotgunframes, self.rifleframes, self. tiles, self.backgrounds, self.wallimages, self.decalimages, self.objectimages]
         #imgusage = sys.getsizeof(assets)
@@ -161,7 +167,6 @@ class Engine(object):
                             ika.Image("Img/weapons/fp_rifle_firing.png")]
                             
                             
-
     def NewGame(self):
         self.inv = Inventory()
         self.equip = Equip()
@@ -269,8 +274,7 @@ class Engine(object):
         self.attacking = False
         self.reloading = False
         self.animtimer = 0
-
-        
+     
 
     def Run(self):
 
@@ -785,12 +789,9 @@ class Engine(object):
           return False
        return True #obsutrction found
 
-    def GetDecalFacing(self, d):
-        pass
 
     def DrawWalls(self):
-
-        if(self.moved): #Took a step. Flip the background image, to make the movement look more realistic..
+        if(self.moved): #We just took a step. Flip the background image, to make the movement look more realistic.
             self.backflip += 1
             if(self.backflip > 1): self.backflip = 0
 
@@ -803,12 +804,12 @@ class Engine(object):
         obj = [0]*25
         
         b_walls = [False] * 25
-        walls = [1]*25
+        walls = [0]*25
         
-        b_decals = [False] * 25
-        decals = [0]*25
-        
-        decalf = [0]*25 #decal facing
+        b_decals = [[False] * 25,  [False] * 25]
+        decals = [[0]*25, [0]*25] #currently two decal layers        
+        decalf = [[0]*25, [0]*25] #decal facing
+        decal_layers = [3, 5] #current decal layer indexes
 
         x = 0
         y = 0
@@ -855,17 +856,17 @@ class Engine(object):
                 
                 ents[t] = self.GetEnts(int(self.plrx+x), int(self.plry+y))
                 
-                d = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 3) #Decal layer
-                if d>=self.decalnum and d<100: #within decal range, currently tiles 40+
-                    d-=self.decalnum
-                    b_decals[t]=True
-                    try: 
-                       dec = int(d /4) #get the decal tile number
-                       facing = d % 4 #get the facing number                      
-                       decals[t] = dec
-                       decalf[t] = d
-                    except IndexError: 
-                        ika.Log("d:" + str(d))
+                for l in range(len(decal_layers)):
+                    d = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), decal_layers[l])
+                    if d>=self.decalnum and d<100: #within decal range, currently tiles 40+
+                        d-=self.decalnum
+                        b_decals[l][t]=True
+                        
+                        decals[l][t] = d #get the decal tile number
+                        
+                        f = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), decal_layers[l] + 1) #facing layer is one layer higher
+                        decalf[l][t] = f % 4 #get the facing number. Hack, modding by 4 lets us use any tile if we wanted to, and lets us put colors to help identify different decal layer facings
+
                 
                 o = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 1) #Object layer
                 
@@ -916,15 +917,18 @@ class Engine(object):
         ]
         
         objdicts = [ { }, #empty dict here as objects do not have a 4th row                    
-                    { 18: "3left", 19: "3mid", 20: "3right" },
-                    { 10: "2left", 11: "2mid", 12: "2right" },  
-                    { 4: "1left", 5: "1mid", 6: "1right"}  ]
+                     { 18: "3left", 19: "3mid", 20: "3right" },
+                     { 10: "2left", 11: "2mid", 12: "2right" },  
+                     { 4: "1left", 5: "1mid", 6: "1right"}  ]
 
         
         for key, val in pwalldicts[0].items():
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
-              if b_decals[key]:  #and facing is correct
-                self.decalimages[decals[key]][val].Blit(self.left, self.top)
+              for l in range(len(decal_layers)):
+                  if b_decals[l][key]:  #and facing is correct
+                    if ("left" in val and self.decall_vis[self.facing] == decalf[l][key]) or \
+                       ("right" in val and self.decalr_vis[self.facing] == decalf[l][key]):                 
+                         self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
   
         ##### Row 2 ############################################################################
 
@@ -966,17 +970,22 @@ class Engine(object):
                if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 152, 36)
                elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 152+12, 36+12)
         
-        #for(
+
 
         for key, val in fwalldicts[1].items():              
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)              
-              if b_decals[key]: 
-                   self.decalimages[decals[key]][val].Blit(self.left, self.top)
+              for l in range(len(decal_layers)):
+                  if b_decals[l][key]:  
+                    if self.decalf_vis[self.facing] == decalf[l][key]:
+                       self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
 
         for key, val in pwalldicts[1].items():
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
-              if b_decals[key] :  #and facing is correct
-                self.decalimages[decals[key]][val].Blit(self.left, self.top)
+              for l in range(len(decal_layers)):
+                  if b_decals[l][key]:  #and facing is correct
+                    if ("left" in val and self.decall_vis[self.facing] == decalf[l][key]) or \
+                       ("right" in val and self.decalr_vis[self.facing] == decalf[l][key]):                 
+                         self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
 
 
 
@@ -1023,13 +1032,18 @@ class Engine(object):
 
         for key, val in fwalldicts[2].items():
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
-              if b_decals[key]: 
-                   self.decalimages[decals[key]][val].Blit(self.left, self.top)
+              for l in range(len(decal_layers)):
+                  if b_decals[l][key]:  
+                    if self.decalf_vis[self.facing] == decalf[l][key]:
+                       self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
                    
         for key, val in pwalldicts[2].items():
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
-              if b_decals[key] :  #and facing is correct
-                self.decalimages[decals[key]][val].Blit(self.left, self.top)
+              for l in range(len(decal_layers)):
+                  if b_decals[l][key]:  
+                    if ("left" in val and self.decall_vis[self.facing] == decalf[l][key]) or \
+                       ("right" in val and self.decalr_vis[self.facing] == decalf[l][key]):                 
+                         self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
 
 
 
@@ -1069,13 +1083,18 @@ class Engine(object):
 
         for key, val in fwalldicts[3].items():
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
-              if b_decals[key] :  #and facing is correct
-                   self.decalimages[decals[key]][val].Blit(self.left, self.top)
+              for l in range(len(decal_layers)):
+                  if b_decals[l][key]:  
+                    if self.decalf_vis[self.facing] == decalf[l][key]:
+                       self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
 
         for key, val in pwalldicts[3].items():
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
-              if b_decals[key] :  #and facing is correct
-                self.decalimages[decals[key]][val].Blit(self.left, self.top)
+              for l in range(len(decal_layers)):
+                  if b_decals[l][key]:  #and facing is correct
+                    if ("left" in val and self.decall_vis[self.facing] == decalf[l][key]) or \
+                       ("right" in val and self.decalr_vis[self.facing] == decalf[l][key]):                 
+                         self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
 
         ika.Video.ClipScreen() 
         

@@ -18,8 +18,8 @@
 			(label 'Walls')
 			(type 'tile')
 			(dimensions 
-				(width '50')
-				(height '50')
+				(width '100')
+				(height '100')
 			)
 			(position 
 				(x '0')
@@ -37,12 +37,12 @@
 			)
 			(data 
 				(format 'zlib')
-				'eJzsmOsOgyAMhUGd0b3/A88/ZE3Ts3IR1OV8SYOWSz0UCDGEvsTDZsNi57hng763l44YvnMXhe2HvQ3bVbsZlNIW9d6DGfgXxz8546J6FK8VNO4O/Gk+qaMPtTpezrijdUQQ84n52Ay/Ppf0eXNHHZOIm8oVtD/rvPL6l4LmB+lIOZkyrCReKzU6ckDtqMOPtxpm3Scs023k+0gdaNwoSuubvLxckY9ffqQD3b9k/5I8teLdS1vzoduNzoesb9Gh89ZTR85+1uSsK1kmnpqPUfujdn5q98fddHjrKtX/07oq6VeL/F9g/aPR/xS0X/p0PXomhBBCCCGEEEIIIYSQK/gAAAD//w=='
+				'eJzs2o1qgzAUBlB/ujL3/g+8ikhDyE00xa3QcyDYxqhwP6MiDsO1xkebC228+LiURXWXR904PM/lMWnLo/0U2pKNm4Nl2m7Zf2Jz0H9r9E+N/Ubro+OxieqzBP37+S2Pa8jjvfTm8dXYrzz6rPUt1c78+B9rfb4L/flzVP58JI9rrPWZhmf99uU9GO/56lpRfaI89jkyHWhnjsemJ48jonHyqJPHe1nrdi+00nuOUsvHpP9L5FEX1WdMlqXatuaJPPq03sNGeUTvt9Ltz8wbNq33sK/Oj3yc+VF3pK6v5JHPI3nUHb1v545cr9LlTh51V88P949zes/X3vuHPOp682hdr/b1rlfn/MX16sx2ny79LqH0bU7+7ULen/bl66PfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwKX4BAAD//w=='
 			)
 			(obstructions 
 				(style 'tile')
 				(format 'zlib')
-				'eJzsUkkSwCAII///dKcLGi1BvZMDtWgIm1kMvBC3IYOsiPaHKY37Zo690BgsnlP/7jA8V/4LGXBjFF1V3l4BQx1S42V4f/ztc5DdNfxq3e7VMA/NQMu4T4Y7IeognmvKmfed6MuBdIL4WtO6PFcns8LoxeziO0OgsdorO8nKaADsPdZI6oj5qUa2C4kGaOtXGhlCRqFQKBQcFwAAAP//'
+				'eJzslEkOAyEMBN3//3SUYTNkmEPSKJeqA2aR3PJGxD0qbF49KK0GbzvCF8fbVz5l69PIq67dsGc06q3yyaShtkSKwFfz7lea6mGMo2i0Xmrer42xd0MfVT7YV9N8ODXUMz8mJfeAQUOrUjmHc87HzzG+EJlnULWNeg8Pa8+V5lutVz9p9PREjsP/X8XZXEUaiHxr1ah2zZWzHveK5jjuPWn78o1GMemPD3scT5g0AAAAAAAAAAAAAAAAAADgH7wAAAD//w=='
 			)
 			(entities )
 			(zones )
@@ -136,7 +136,7 @@
 			)
 			(data 
 				(format 'zlib')
-				'eJzs1SEKACAQBEA/Joj6/zdZjBq0nOBMWbi0sOFSAm606AIAB3p0gU/lzd0PibPaZLcT/KjOLJElAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeMAAAAP//'
+				'eJzs1bEJADAMA7C82KH/v9KtS7N0SiDSBQZjHAH82tUBuHTR16oOAJDIfsOXwMsuAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIDpDgAAAP//'
 			)
 			(obstructions 
 				(style 'tile')
@@ -169,7 +169,73 @@
 			)
 			(data 
 				(format 'zlib')
-				'eJzswTEBAAAAwqD1T+1lC6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAbAAAA//8='
+				'eJzs1akVACEQREEC48hi8w8FwwMDYlWbKjP2q55SgL96OoCtpQN4GukAgIvb37BXcHzr1mgFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEDeBAAA//8='
+			)
+			(obstructions 
+				(style 'tile')
+				(format 'zlib')
+				'eJzswQENAAAAwqD3T20ON6AAAAAAAAAAAADg3wAAAP//'
+			)
+			(entities )
+			(zones )
+		)
+		(layer 
+			(label 'Decals 2')
+			(type 'tile')
+			(dimensions 
+				(width '100')
+				(height '100')
+			)
+			(position 
+				(x '0')
+				(y '0')
+			)
+			(parallax 
+				(mulx '1')
+				(muly '1')
+				(divx '1')
+				(divy '1')
+			)
+			(wrap 
+				(x 'false')
+				(y 'false')
+			)
+			(data 
+				(format 'zlib')
+				'eJzszkEJAAAIBDBDiv2j2EGE+2wJVgUA/yYdAADOOh0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhbAAAA//8='
+			)
+			(obstructions 
+				(style 'tile')
+				(format 'zlib')
+				'eJzswQENAAAAwqD3T20ON6AAAAAAAAAAAADg3wAAAP//'
+			)
+			(entities )
+			(zones )
+		)
+		(layer 
+			(label 'Decals Facing 2')
+			(type 'tile')
+			(dimensions 
+				(width '100')
+				(height '100')
+			)
+			(position 
+				(x '0')
+				(y '0')
+			)
+			(parallax 
+				(mulx '1')
+				(muly '1')
+				(divx '1')
+				(divy '1')
+			)
+			(wrap 
+				(x 'false')
+				(y 'false')
+			)
+			(data 
+				(format 'zlib')
+				'eJzs1TENAAAIBLH3hn9PeCAkDLQKbrsEAPbVdQAAMObjAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMB3DQAA//8='
 			)
 			(obstructions 
 				(style 'tile')
