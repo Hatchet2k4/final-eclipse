@@ -6,7 +6,7 @@ import entity
 import sound
 import pda
 import credits
-
+import sys
 
 ika.SetCaption(ika.GetCaption() + " - Final Eclipse")
 engine = None
@@ -15,11 +15,19 @@ engine = None
 
 class Engine(object):
     def __init__(self):
-
+        
         self.tinyfont = ika.Font('fonts/log_white.fnt')
         self.itemfont = ika.Font('fonts/item_white.fnt')
         self.itemfontgrey = ika.Font('fonts/item_grey.fnt')
         self.gunfont = ika.Font('fonts/font_gun.fnt')
+        self.medfont = ika.Font('fonts/medfont.fnt')
+        self.greyfont = ika.Font('fonts/log_grey.fnt')
+        self.whitefont = ika.Font('fonts/log_white.fnt')
+        
+        ### basic loading splash screen..
+        ika.Video.DrawRect(0,0,320,240, ika.RGB(0,0,0), 1)
+        self.whitefont.Print(140,116, "Loading...")
+        ika.Video.ShowPage()
 
         self.pda = pda.PDA()
         self.messages = Messages()
@@ -66,7 +74,6 @@ class Engine(object):
 
         
         self.NewGame() #initial settings
-        
         self.LoadWalls()
         self.LoadDecals()
         self.LoadObjects()
@@ -98,7 +105,9 @@ class Engine(object):
         self.offtable_l = [(-1, 0), (0, -1), (1, 0), (0, 1)]
         self.offtable_r = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
-        
+        #assets = [self.handframes, self.pipeframes, self.pistolframes, self.shotgunframes, self.rifleframes, self. tiles, self.backgrounds, self.wallimages, self.decalimages, self.objectimages]
+        #imgusage = sys.getsizeof(assets)
+        #ika.Log("Estimated image memory usage: " + str(imgusage/1024) +"KB")
 
     def LoadDeck(self, deck):
     
@@ -810,7 +819,17 @@ class Engine(object):
         #background
         self.back[self.backflip].Blit(self.left, self.top)
         
-	
+	    ### This section generates 4 rows of data, to fill in the 25 item list as above. These are laid out in the following cell format, with cell 1 being the player's position:
+        """
+        [16][17][18][19][20][21][22][23][24][25]
+            [ 8][ 9][10][11][12][13][14][15]
+                [ 3][ 4][ 5][ 6][ 7]
+                    [ 0][ 1][ 2]
+        """
+        ### These cells are dependent on the player's current facing, but makes it much easier to determine what must be drawn later. 
+        ### Some cells are unused. This algorithm could (and possibly should) be modified to have a better line of sight to reduce unused cells.
+        
+        
         for i in range(4): #4 rows
             j = -i-1 #starts -1, ends -4 
             while(j < i+2):
