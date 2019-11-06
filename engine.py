@@ -451,7 +451,10 @@ class Engine(object):
               #translate to window coordinates
               mx=self.MouseX()-self.left
               my=self.MouseY()-self.top
-              if self.switches.has_key((self.plrx+offx, self.plry+offy)): #switch exists here
+              
+              
+              
+              if self.switches.has_key((self.plrx+offx, self.plry+offy)): #switch exists here, priority over items
                  for s in  self.switches[(self.plrx+offx, self.plry+offy)]:
                     sx, sy, sw, sh=s.clickarea
                     #not currently checking facing, will add after
@@ -460,7 +463,7 @@ class Engine(object):
               
               
               #need to check if specific area for items is clicked, just uses anywhere in window for now
-              if self.inv.grabbeditem is None: #not holding an item, try to grab one
+              elif self.inv.grabbeditem is None: #not holding an item, try to grab one
                  #todo: code pressing buttons
                  # if facing a wall directly ahead and wall contains a pressable item, find the clickable area and compare to activate
 
