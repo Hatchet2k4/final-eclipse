@@ -6,7 +6,7 @@ import entity
 import sound
 import pda
 import credits
-import sys
+
 
 ika.SetCaption(ika.GetCaption() + " - Final Eclipse")
 engine = None
@@ -74,30 +74,9 @@ class Engine(object):
 
         
         self.NewGame() #initial settings
-        self.LoadWalls()
-        self.LoadDecals()
-        self.LoadObjects()
+        self.LoadAssets()
         
-        self.LoadDeck("medsci")
-        
-
-        self.handframes = [ika.Image("Img/weapons/fp_handr.png"),
-                           ika.Image("Img/weapons/fp_handr_punch1.png"),
-                           ika.Image("Img/weapons/fp_handr_punch2.png")]
-
-        self.pipeframes = [ika.Image("Img/weapons/fp_pipe.png"),
-                           ika.Image("Img/weapons/fp_pipe_hit1.png"),
-                           ika.Image("Img/weapons/fp_pipe_hit2.png")]
-
-        self.pistolframes = [ika.Image("Img/weapons/fp_pistol.png"),
-                             ika.Image("Img/weapons/fp_pistol_firing.png")]
-
-        self.shotgunframes = [ika.Image("Img/weapons/fp_shotgun.png"),
-                              ika.Image("Img/weapons/fp_shotgun_firing.png"),
-                              ika.Image("Img/weapons/fp_shotgun_cock.png")]
-
-        self.rifleframes = [ika.Image("Img/weapons/fp_rifle.png"),
-                            ika.Image("Img/weapons/fp_rifle_firing.png")]
+        self.LoadDeck("medsci")        
 
 
         self.color = ika.RGB(0,0,0)
@@ -122,27 +101,36 @@ class Engine(object):
         self.music.loop = True
         self.music.Play()
         
-    def LoadWalls(self):       #combine all into one LoadAssets call
+    def LoadAssets(self):       #combine all into one LoadAssets call
        decklist = ["medsci", "office", "operations", "barracks", "final"]
        for d in decklist:     
            self.backgrounds[d] = [ika.Image("img/backgrounds/"+d+"1.png"), ika.Image("img/backgrounds/"+d+"2.png")]
 
-       walllist = ["med1", "med2", "med1win", "med1door", "med2door", "military", "militarydoor", "bed", "final", "finalspace"]  #order is important, based on order in tileset        
+       #Lists of all resources for walls, decals and objects. The order is important, as it's based on the order in tileset. 
+       walllist = ["med1", "med2", "med1win", "med1door", "med2door", "military", "militarydoor", "bed", "final", "finalspace"]       
+       decallist = ["door", "dcode_r", "dcode_g", "dkey_r", "dkey_g", "blood_sm", "blood_big", "switch1", "switch2"] # /4 for each direction
+       objlist = ["table", "medtable", "blood_floor1", "blood_floor2", "crate"] 
        
        imglist = ["flat1left", "flat1mid", "flat1right", "per1left", "per1right", "flat2left", "flat2mid", "flat2right", 
                   "per2left", "per2right",  "flat3left",  "flat3mid", "flat3right", "per3left", "per3right",
                   "per4farleft", "per4left",  "per4right",  "per4farright"] 
           
-       for path in walllist:         
+       for path in walllist:                  
+           wall = { }
+           for img in imglist: 
+               wall[img] = ika.Image("img/walls/"+path+"/"+img+".png")
          
-         wall = { }
-         for img in imglist: 
-            wall[img] = ika.Image("img/walls/"+path+"/"+img+".png")
-         
-         self.wallimages.append(wall)
-         
-    def LoadObjects(self):
-       objlist = ["table", "medtable", "blood_floor1", "blood_floor2", "crate"] #order is important, based on order in tileset
+           self.wallimages.append(wall)                     
+
+                  
+       for path in decallist:    
+            d = {}
+            for img in imglist: 
+                d[img] = ika.Image("img/decals/"+path+"/"+img+".png")
+
+            self.decalimages.append(d)         
+
+       
        imglist = ["1left", "1mid","1right",
                    "2left", "2mid","2right",
                    "3left", "3mid","3right"]
@@ -153,19 +141,26 @@ class Engine(object):
              obj[img] = ika.Image("img/objects/"+path+"/"+img+".png")
           self.objectimages.append(obj)
 
-    def LoadDecals(self):
-        decallist = ["door", "dcode_r", "dcode_g", "dkey_r", "dkey_g", "blood_sm", "blood_big", "switch1", "switch2"] #order is important, based on order in tileset. /4 for each direction
-        
-        imglist = ["flat1left", "flat1mid", "flat1right", "per1left", "per1right", "flat2left", "flat2mid", "flat2right", 
-                  "per2left", "per2right",  "flat3left",  "flat3mid", "flat3right", "per3left", "per3right",
-                  "per4farleft", "per4left",  "per4right",  "per4farright"] 
-                  
-        for path in decallist:    
-            d = {}
-            for img in imglist: 
-                d[img] = ika.Image("img/decals/"+path+"/"+img+".png")
+       #load images for the first person weapon views
+       self.handframes = [ika.Image("Img/weapons/fp_handr.png"),
+                           ika.Image("Img/weapons/fp_handr_punch1.png"),
+                           ika.Image("Img/weapons/fp_handr_punch2.png")]
 
-            self.decalimages.append(d) 
+       self.pipeframes = [ika.Image("Img/weapons/fp_pipe.png"),
+                           ika.Image("Img/weapons/fp_pipe_hit1.png"),
+                           ika.Image("Img/weapons/fp_pipe_hit2.png")]
+
+       self.pistolframes = [ika.Image("Img/weapons/fp_pistol.png"),
+                             ika.Image("Img/weapons/fp_pistol_firing.png")]
+
+       self.shotgunframes = [ika.Image("Img/weapons/fp_shotgun.png"),
+                              ika.Image("Img/weapons/fp_shotgun_firing.png"),
+                              ika.Image("Img/weapons/fp_shotgun_cock.png")]
+
+       self.rifleframes = [ika.Image("Img/weapons/fp_rifle.png"),
+                            ika.Image("Img/weapons/fp_rifle_firing.png")]
+                            
+                            
 
     def NewGame(self):
         self.inv = Inventory()
@@ -790,6 +785,9 @@ class Engine(object):
           return False
        return True #obsutrction found
 
+    def GetDecalFacing(self, d):
+        pass
+
     def DrawWalls(self):
 
         if(self.moved): #Took a step. Flip the background image, to make the movement look more realistic..
@@ -830,29 +828,30 @@ class Engine(object):
         ### Some cells are unused. This algorithm could (and possibly should) be modified to have a better line of sight to reduce unused cells.
         
         
-        for i in range(4): #4 rows
-            j = -i-1 #starts -1, ends -4 
-            while(j < i+2):
+        
+        for i in range(4): #4 rows        
+            j = -i-1 #starts at -1, ends -4 
+            while(j < i+2): 
+                #determine how cells that will be filled 
                 if self.facing == 0: x = j; y = -i
                 if self.facing == 1: x = i; y = j
                 if self.facing == 2: x = -j; y = i
-                if self.facing == 3: x = -i; y = -j
-
-
-                
+                if self.facing == 3: x = -i; y = -j                
                     
                 walls[t] = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 0) #Wall layer
                 if walls[t] > 0 and walls[t] < self.objnum:
                     walls[t]-=1 #walls are 0 based, so subtract 1 to get the correct index for the image
                     b_walls[t]=True #wall exists here
                 
-                
-                if self.pda.mode == 2: #hack! Draw a facing view when in Obj mode of PDA
+                ### HACK! Draw a facing view when in Obj mode of PDA ###
+                ### Eventually will use this to test line of sight view to update the automap correctly ###
+                if self.pda.mode == 2: 
                     if t==1: self.tiles[2].Blit(100+8*x, 199+8*y)
                     
                     elif walls[t]>0: 
                         self.tiles[1].Blit(100+8*x, 199+8*y)
                     else: self.tiles[0].Blit(100+8*x, 199+8*y)
+                ### END HACK ###
                 
                 ents[t] = self.GetEnts(int(self.plrx+x), int(self.plry+y))
                 
@@ -897,11 +896,11 @@ class Engine(object):
 
 
 
-        ##### Drawing logic. Draws from back to front. #########################################
-        ika.Video.ClipScreen(self.left, self.top, self.left+224, self.top+128)
+        ##### Drawing logic. Draws from back to front. #########################################                
+        
         ##### Row 3 ############################################################################
         
-        
+        ika.Video.ClipScreen(self.left, self.top, self.left+224, self.top+128) ##prevent from drawing out the main window
         
         #side walls
         pwalldicts = [ { 17: "per4farleft", 18: "per4left", 20: "per4right", 21: "per4farright"},
@@ -1183,60 +1182,8 @@ class Engine(object):
        self.music.Pause()
        credits.Start()
 
-class Wall(object): 
-    def __init__(self):
-        self.lw0=None
-        self.cw0=None
-        self.rw0=None
-        self.lp0=None
-        self.rp0=None
-                 
-        self.lw1=None
-        self.cw1=None
-        self.rw1=None
-        self.lp1=None
-        self.rp1=None
-                 
-        self.lw2=None
-        self.cw2=None
-        self.rw2=None
-        self.lp2=None
-        self.rp2=None
 
-        self.flp3=None
-        self.lp3=None
-        self.rp3=None
-        self.frp3=None
-
-class Obj(object): #not currently used
-    pass
-
-class Decal(object): 
-    def __init__(self):
-        self.lw0=None
-        self.cw0=None
-        self.rw0=None
-        self.lp0=None
-        self.rp0=None
-                 
-        self.lw1=None
-        self.cw1=None
-        self.rw1=None
-        self.lp1=None
-        self.rp1=None
-                 
-        self.lw2=None
-        self.cw2=None
-        self.rw2=None
-        self.lp2=None
-        self.rp2=None
-
-        self.flp3=None
-        self.lp3=None
-        self.rp3=None
-        self.frp3=None
-
-class Messages(object): #two message lines under the dungeon window
+class Messages(object): #for the two message lines under the dungeon window
    def __init__(self):
       self.msg = ["", ""]
       self.time = [0, 0]
@@ -1264,7 +1211,7 @@ class Messages(object): #two message lines under the dungeon window
         self.time[slot] = time
         self.maxtime[slot] = maxtime
 
-   def Pop(self): #pops bottom message up one level
+   def Pop(self): #pops bottom message up one level and discards the top message
         self.SetMessage(self.msg[1], self.time[1], self.maxtime[1], 0)
         self.SetMessage("", 0, 0, 1)
 
