@@ -6,7 +6,7 @@ import entity
 import sound
 import pda
 import credits
-
+import scripts 
 
 ika.SetCaption(ika.GetCaption() + " - Final Eclipse")
 engine = None
@@ -49,16 +49,23 @@ class Engine(object):
 		#self.texturetest=ika.Image("Img/Walls/texturetest.png")
         self.deck = "" #name of current deck        
         
+        #todo - make deck aware
+        self.switches = [] #list of switch objects
+        
+        self.things = [] #list of things - additional objects that can update gamestate over time. usually spawned by a switch. will get despawned if deck changes
+        
         self.backgrounds = {} #dict of images per deck
         self.wallimages = [] #list of dicts for wall images. access as self.wallimages[tile number]['flat1left'] to get the image "
         self.objectimages = [] #list of dicts of object images
         self.decalimages = [] #list of dicts for decal images
         
         
+        
         self.objnum = 20 #objects currently start at tile 20 in the map editor        
         self.decalnum = 80 #decals currently start at tile 20 in the map editor
         
         self.arrows = [] #images of arrows for automap
+                
         
         
         for i in range(4):
@@ -73,7 +80,7 @@ class Engine(object):
         self.moved = False
 
         
-        self.NewGame() #initial settings
+        self.NewGame() #setup initial settings for enemies, items, switches, etc.
         self.LoadAssets()
         
         self.LoadDeck("medsci")        
@@ -85,9 +92,9 @@ class Engine(object):
         self.offtable_r = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
         ### Dicts to determine decal facing. Key is player facing, and returns the side on which the decal should be visible from that direction.
-        self.decalf_vis = { NORTH: SOUTH, EAST: WEST, SOUTH: NORTH, WEST: EAST } #front
-        self.decall_vis = { NORTH: EAST, EAST: SOUTH, SOUTH: WEST, WEST: NORTH } #left perspective
-        self.decalr_vis = { NORTH: WEST, EAST: NORTH, SOUTH: EAST, WEST: SOUTH } #right perspective
+        self.facetable = { NORTH: SOUTH, EAST: WEST, SOUTH: NORTH, WEST: EAST } #front
+        self.facetable_l = { NORTH: EAST, EAST: SOUTH, SOUTH: WEST, WEST: NORTH } #left perspective
+        self.facetable_r = { NORTH: WEST, EAST: NORTH, SOUTH: EAST, WEST: SOUTH } #right perspective
         
 
         #assets = [self.handframes, self.pipeframes, self.pistolframes, self.shotgunframes, self.rifleframes, self. tiles, self.backgrounds, self.wallimages, self.decalimages, self.objectimages]
@@ -95,13 +102,22 @@ class Engine(object):
         #ika.Log("Estimated image memory usage: " + str(imgusage/1024) +"KB")
 
     def LoadDeck(self, deck):
-    
-        ika.Map.Switch('medsci.ika-map')
+        
+        #save state before switching decks! may not be needed as the are already referring to global..
+        #self.global_entities[self.deck] = self.entities
+        #self.global_items[self.deck] = self.items
+        #self.global_switches[self.deck] = self.switches
+        
+        #load new deck
         self.deck = deck
+        ika.Map.Switch(deck+'.ika-map')        
         self.back = self.backgrounds[deck]
         
         self.entities = self.global_entities[deck]
         self.items = self.global_items[deck]
+        self.switches = self.global_switches[deck]
+        
+        self.things = []
         
         self.music = ika.Music("music/medsci.ogg") #change per deck
         self.music.loop = True
@@ -166,7 +182,8 @@ class Engine(object):
        self.rifleframes = [ika.Image("Img/weapons/fp_rifle.png"),
                             ika.Image("Img/weapons/fp_rifle_firing.png")]
                             
-                            
+    
+    
     def NewGame(self):
         self.inv = Inventory()
         self.equip = Equip()
@@ -253,6 +270,14 @@ class Engine(object):
                        "barracks": {},
                        "final": {}   
                      }
+                    #x, y, facing, action, clickable=False, clickarea=(0,0,0,0)):
+        self.global_switches = { "medsci": { (8, 3): [Switch(8, 3, WEST, scripts.OpenDoor1, True, (148, 56, 12, 17))  ] },
+                        "office": {},
+                       "operations": {},
+                       "barracks": {},
+                       "final": {}   
+                     }
+
 
         self.health = 70
         self.max_health = 100
@@ -303,11 +328,14 @@ class Engine(object):
             ika.Input.Update()
 
             self.UpdateStats()
+            
             self.Move()            
             
                      
 
             #main hud drawing
+            
+            
             ika.Video.Blit(self.hudmain, 0, 0)
             ika.Video.TintBlit(self.hudcolor, 0, 0, self.color)
             ika.Video.TintDistortBlit(self.hudhealth,
@@ -325,21 +353,24 @@ class Engine(object):
             self.pda.Draw()
             self.messages.Draw()
 
-            if not self.fullscreen:
-               self.DoMouse()
-            else: #no mouse in fullscreen mode :P
-               scr = ika.Video.GrabImage(8,5, 224, 133)
+            if self.fullscreen:
+               ### Fake fullscreen mode! But currently no mouse. May hack in a fullscreen mode mouse for fun..
+               scr = ika.Video.GrabImage(self.left,self.top, self.left + 224, self.top+128)
                ika.Video.DrawRect(0,0,320,240, ika.RGB(0,0,0), 1)
-               ika.Video.ScaleBlit(scr, 0, 28, 320, 184)
+               w = int(224*1.5)
+               h = int(128*1.5)
+               topleftx = 160 - (w/2)
+               toplefty = 120 - (h/2)
+               ika.Video.ScaleBlit(scr, topleftx,toplefty, w, h)
 
-            #self.tinyfont.Print(0,0, str(ika.GetFrameRate()))
+            self.tinyfont.Print(0,0, str(ika.GetFrameRate()))
             #self.tinyfont.Print(0,10, str(self.animtimer))
-
-            if ika.Input.keyboard['ESCAPE'].Pressed():
+            self.DoMouse()
+            if ika.Input.keyboard['ESCAPE'].Pressed(): #pause
                #scr = ika.Video.GrabImage(0,0, 320, 240)
-               ika.Video.DrawRect(0,0,320,240, ika.RGB(0,0,0,128), 1)
+               ika.Video.DrawRect(0,0,320,240, ika.RGB(0,0,0,128), 1) #darken screen while paused
                ika.Video.ShowPage()
-               while not ika.Input.keyboard['ESCAPE'].Pressed():
+               while not ika.Input.keyboard['ESCAPE'].Pressed(): 
                    #ika.Video.Blit(scr, 0,0)
 
                    ika.Input.Update()
@@ -349,6 +380,8 @@ class Engine(object):
                time = ika.GetTime()
 
             ika.Video.ShowPage()
+
+            ###Done drawing, process input ###
 
             if ika.Input.keyboard['RCTRL'].Position() or ika.Input.keyboard['LCTRL'].Position() or self.MouseM():
                self.Attack()
@@ -413,8 +446,20 @@ class Engine(object):
           ### Main Window Click ###############################################################################
           
           if self.MouseX() > self.left and self.MouseX() < self.left + 224 \
-          and self.MouseY() > self.top + 8 and self.MouseY() < self.top + 128: #clicked in bottom of main window
+          and self.MouseY() > self.top and self.MouseY() < self.top + 128: #clicked in main window
               offx, offy = self.offtable[self.facing]
+              #translate to window coordinates
+              mx=self.MouseX()-self.left
+              my=self.MouseY()-self.top
+              if self.switches.has_key((self.plrx+offx, self.plry+offy)): #switch exists here
+                 for s in  self.switches[(self.plrx+offx, self.plry+offy)]:
+                    sx, sy, sw, sh=s.clickarea
+                    #not currently checking facing, will add after
+                    if mx>=sx and mx<=sx+sw and my>=sy and my<=sy+sh: #clicked in area 
+                        s.Activate()                 
+              
+              
+              #need to check if specific area for items is clicked, just uses anywhere in window for now
               if self.inv.grabbeditem is None: #not holding an item, try to grab one
                  #todo: code pressing buttons
                  # if facing a wall directly ahead and wall contains a pressable item, find the clickable area and compare to activate
@@ -926,8 +971,8 @@ class Engine(object):
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
               for l in range(len(decal_layers)):
                   if b_decals[l][key]:  #and facing is correct
-                    if ("left" in val and self.decall_vis[self.facing] == decalf[l][key]) or \
-                       ("right" in val and self.decalr_vis[self.facing] == decalf[l][key]):                 
+                    if ("left" in val and self.facetable_l[self.facing] == decalf[l][key]) or \
+                       ("right" in val and self.facetable_r[self.facing] == decalf[l][key]):                 
                          self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
   
         ##### Row 2 ############################################################################
@@ -976,15 +1021,15 @@ class Engine(object):
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)              
               for l in range(len(decal_layers)):
                   if b_decals[l][key]:  
-                    if self.decalf_vis[self.facing] == decalf[l][key]:
+                    if self.facetable[self.facing] == decalf[l][key]:
                        self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
 
         for key, val in pwalldicts[1].items():
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
               for l in range(len(decal_layers)):
                   if b_decals[l][key]:  #and facing is correct
-                    if ("left" in val and self.decall_vis[self.facing] == decalf[l][key]) or \
-                       ("right" in val and self.decalr_vis[self.facing] == decalf[l][key]):                 
+                    if ("left" in val and self.facetable_l[self.facing] == decalf[l][key]) or \
+                       ("right" in val and self.facetable_r[self.facing] == decalf[l][key]):                 
                          self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
 
 
@@ -1034,15 +1079,15 @@ class Engine(object):
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
               for l in range(len(decal_layers)):
                   if b_decals[l][key]:  
-                    if self.decalf_vis[self.facing] == decalf[l][key]:
+                    if self.facetable[self.facing] == decalf[l][key]:
                        self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
                    
         for key, val in pwalldicts[2].items():
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
               for l in range(len(decal_layers)):
                   if b_decals[l][key]:  
-                    if ("left" in val and self.decall_vis[self.facing] == decalf[l][key]) or \
-                       ("right" in val and self.decalr_vis[self.facing] == decalf[l][key]):                 
+                    if ("left" in val and self.facetable_l[self.facing] == decalf[l][key]) or \
+                       ("right" in val and self.facetable_r[self.facing] == decalf[l][key]):                 
                          self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
 
 
@@ -1085,15 +1130,15 @@ class Engine(object):
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
               for l in range(len(decal_layers)):
                   if b_decals[l][key]:  
-                    if self.decalf_vis[self.facing] == decalf[l][key]:
+                    if self.facetable[self.facing] == decalf[l][key]:
                        self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
 
         for key, val in pwalldicts[3].items():
               if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
               for l in range(len(decal_layers)):
                   if b_decals[l][key]:  #and facing is correct
-                    if ("left" in val and self.decall_vis[self.facing] == decalf[l][key]) or \
-                       ("right" in val and self.decalr_vis[self.facing] == decalf[l][key]):                 
+                    if ("left" in val and self.facetable_l[self.facing] == decalf[l][key]) or \
+                       ("right" in val and self.facetable_r[self.facing] == decalf[l][key]):                 
                          self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
 
         ika.Video.ClipScreen() 
@@ -1201,8 +1246,24 @@ class Engine(object):
        self.music.Pause()
        credits.Start()
 
-
-class Messages(object): #for the two message lines under the dungeon window
+### For activatable objects in the main view. Can also activate other, non clickable objects in the world, such as doors! 
+### Switches are invisible, but are paired with decals.
+### Each can be given a custom function to run, making them very flexible. :) 
+class Switch(object): 
+    def __init__(self, x, y, facing, action, clickable=False, clickarea=(0,0,0,0)):
+        
+        self.x=x #map x/y location of the switch.. may not be needed
+        self.y=y
+        self.action=action #reference to a function to run when switch is activated.
+        self.facing=facing #direction of the switch
+        self.clickarea = clickarea #tuple of form (x,y,w,h). are in main view coordinates, so 0,0 would be the top left of the world.
+        
+        
+    def Activate(self):
+        self.action()
+        
+        
+class Messages(object): #for the two message lines under the main view
    def __init__(self):
       self.msg = ["", ""]
       self.time = [0, 0]
@@ -1243,3 +1304,6 @@ class Messages(object): #for the two message lines under the dungeon window
 engine = Engine()
 engine.Run()
 
+
+
+    
