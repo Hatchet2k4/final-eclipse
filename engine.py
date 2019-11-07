@@ -452,7 +452,7 @@ class Engine(object):
               mx=self.MouseX()-self.left
               my=self.MouseY()-self.top
               
-              
+              triggered=False
               
               if self.switches.has_key((self.plrx+offx, self.plry+offy)): #switch exists here, priority over items
                  for s in  self.switches[(self.plrx+offx, self.plry+offy)]:
@@ -460,27 +460,28 @@ class Engine(object):
                     #not currently checking facing, will add after
                     if mx>=sx and mx<=sx+sw and my>=sy and my<=sy+sh: #clicked in area 
                         s.Activate()                 
+                        triggered = True
               
               
               #need to check if specific area for items is clicked, just uses anywhere in window for now
-              elif self.inv.grabbeditem is None: #not holding an item, try to grab one
-                 #todo: code pressing buttons
-                 # if facing a wall directly ahead and wall contains a pressable item, find the clickable area and compare to activate
+              if not triggered: #only try to place stuff if wasn't triggered
+                  if self.inv.grabbeditem is None: #not holding an item, try to grab one
+                     #todo: code pressing buttons
+                     # if facing a wall directly ahead and wall contains a pressable item, find the clickable area and compare to activate
+                    if not self.GetObs(self.plrx+offx, self.plry+offy): #don't try to grab from obstructed square
 
-
-                 if self.items.has_key((self.plrx+offx, self.plry+offy)): #item exists here
-                    self.inv.grabbeditem = self.items[(self.plrx+offx, self.plry+offy)].pop() #grabs only the first item out of the list
-                    self.messages.AddMessage(self.inv.grabbeditem.name)
-                    if len(self.items[(self.plrx+offx, self.plry+offy)]) == 0:
-                       del self.items[(self.plrx+offx, self.plry+offy)] #delete out of dict if it's empty
-              else: #holding an item, place it
-              		#todo: add in code for using keys on buttons, etc
-
-                 if self.items.has_key((self.plrx+offx, self.plry+offy)):
-                    self.items[(self.plrx+offx, self.plry+offy)].append(self.inv.grabbeditem)
-                 else:
-                    self.items[(self.plrx+offx, self.plry+offy)] = [self.inv.grabbeditem]
-                 self.inv.grabbeditem = None
+                        if self.items.has_key((self.plrx+offx, self.plry+offy)): #item exists here
+                            self.inv.grabbeditem = self.items[(self.plrx+offx, self.plry+offy)].pop() #grabs only the first item out of the list
+                            self.messages.AddMessage(self.inv.grabbeditem.name)
+                            if len(self.items[(self.plrx+offx, self.plry+offy)]) == 0:
+                               del self.items[(self.plrx+offx, self.plry+offy)] #delete out of dict if it's empty
+                  else: #holding an item, try to place it                        
+                     if not self.GetObs(self.plrx+offx, self.plry+offy): #don't try to place onto an obstruction
+                         if self.items.has_key((self.plrx+offx, self.plry+offy)):
+                            self.items[(self.plrx+offx, self.plry+offy)].append(self.inv.grabbeditem)
+                         else:
+                            self.items[(self.plrx+offx, self.plry+offy)] = [self.inv.grabbeditem]
+                         self.inv.grabbeditem = None
 
           #### Inventory System ###############################################################################
 
