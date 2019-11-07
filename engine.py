@@ -880,9 +880,12 @@ class Engine(object):
         ### These cells are dependent on the player's current facing, but makes it much easier to determine what must be drawn later. 
         ### Some cells are unused. This algorithm could (and possibly should) be modified to have a better line of sight to reduce unused cells.
         
+        offsettable = { OBJECT_TABLE: [16, 16, 12, 8], 
+                        OBJECT_MEDTABLE: [16, 16, 12, 8],
+                        OBJECT_CRATE: [40, 40, 36, 32]
+                        } 
         
-        
-        for i in range(4): #4 rows        
+        for i in range(4): #4 rows, gathers data from player row outwards   
             j = -i-1 #starts at -1, ends -4 
             while(j < i+2): 
                 #determine how cells that will be filled 
@@ -922,25 +925,25 @@ class Engine(object):
                 
                 o = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 1) #Object layer
                 
-                if o>=self.objnum and o<self.decalnum: #within object range, currently tiles 20-40
-                  o-=self.objnum
-                  b_obj[t] = True
-                  try: 
-                     obj[t] = o # self.objectimages[o]
-                  except IndexError: 
-                      #sometimes get very odd results for o when reading outside map bounds..
-                      ika.Log("t:" + str(t))
-                      ika.Log("o:" + str(o))
-                      ika.Log("objnum:" + str(self.objnum))
-                      ika.Log("x:"+str(int(self.plrx+x)))
-                      ika.Log("y:"+str(int(self.plry+y)))
+                if o>=self.objnum and o<self.decalnum: #within object range, currently tiles 20-40                  
+                    b_obj[t] = True
+                  #try: 
+                    obj[t] = o - self.objnum # reduce bu objnumber in order to reference image arrays correctly
+                  #except IndexError: 
+                  #    #sometimes get very odd results for o when reading outside map bounds..
+                  #    ika.Log("t:" + str(t))
+                  #    ika.Log("o:" + str(o))
+                  #    ika.Log("objnum:" + str(self.objnum))
+                  #    ika.Log("x:"+str(int(self.plrx+x)))
+                  #    ika.Log("y:"+str(int(self.plry+y)))
 
                 
                 if self.items.has_key((int(self.plrx+x), int(self.plry+y))):
                    f_items[t] = self.items[(int(self.plrx+x), int(self.plry+y))]
-                   if o<2: #hack to draw items at proper height on tables, object numbers 0 and 1
+                   
+                   if o in [OBJECT_TABLE, OBJECT_MEDTABLE]: #hack to draw items at proper height on tables, object numbers 0 and 1
                       item_offset[t] = 32/(i+1)
-                   elif o==4: #crate 
+                   elif o+self.objnum == [OBJECT_CRATE]: #crate 
                       item_offset[t] = 32/(i+1) + 24
 
                 j += 1
@@ -949,11 +952,9 @@ class Engine(object):
 
 
 
-        ##### Drawing logic. Draws from back to front. #########################################                
+        ##### Drawing logic. Draws from back to front. #########################################                        
         
-        ##### Row 3 ############################################################################
-        
-        ika.Video.ClipScreen(self.left, self.top, self.left+224, self.top+128) ##prevent from drawing out the main window
+        ika.Video.ClipScreen(self.left, self.top, self.left+224, self.top+128) ##prevent from drawing outside the main window
         
         #side walls
         pwalldicts = [ { 17: "per4farleft", 18: "per4left", 20: "per4right", 21: "per4farright"},
@@ -972,181 +973,139 @@ class Engine(object):
                      { 18: "3left", 19: "3mid", 20: "3right" },
                      { 10: "2left", 11: "2mid", 12: "2right" },  
                      { 4: "1left", 5: "1mid", 6: "1right"}  ]
-
         
-        for key, val in pwalldicts[0].items():
-              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
-              for l in range(len(decal_layers)):
-                  if b_decals[l][key]:  #and facing is correct
-                    if ("left" in val and self.facetable_l[self.facing] == decalf[l][key]) or \
-                       ("right" in val and self.facetable_r[self.facing] == decalf[l][key]):                 
-                         self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
-  
-        ##### Row 2 ############################################################################
-
-        for key, val in objdicts[1].items():
-          try:
-           if b_obj[key]: self.objectimages[obj[key]][val].Blit(self.left, self.top)
-          except:
-           ika.Log("key: "+str(key))
-           ika.Log("obj[key]: "+str(obj[key]))
-           ika.Log("val: "+str(val))
-           ika.Log("key: "+str(key))
-
-        #if(obj[18]): obj[18][6].Blit(self.left, self.top)
-        #if(obj[19]): obj[19][7].Blit(self.left, self.top)
-        #if(obj[20]): obj[20][8].Blit(self.left, self.top)
-
-        if f_items[18]:
-           for i in f_items[18]: ika.Video.DistortBlit(i.img,
-                                  (25, 66-item_offset[18]), (25+8*i.w, 66-item_offset[18]),
-                                  (25+8*i.w,66+6*i.h-item_offset[18]), (25, 66+6*i.h-item_offset[18]))
-        if f_items[19]:
-           for i in f_items[19]: ika.Video.DistortBlit(i.img,
-                                  (110, 66-item_offset[19]), (110+8*i.w, 66-item_offset[19]),
-                                  (110+8*i.w,66+6*i.h-item_offset[19]), (110, 66+6*i.h-item_offset[19]))
-        if f_items[20]:
-           for i in f_items[20]: ika.Video.DistortBlit(i.img,
-                                  (185, 66-item_offset[20]), (185+8*i.w, 66-item_offset[20]),
-                                  (185+8*i.w,66+6*i.h-item_offset[20]), (185, 66+6*i.h-item_offset[20]))
-        if(ents[18]):
-           for e in ents[18]: 
-               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 50, 36)
-               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 50+12, 36+12)                               
-        if(ents[19]):
-           for e in ents[19]: 
-               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 101, 36)
-               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 101+12, 36+12)
-        if(ents[20]):
-           for e in ents[20]: 
-               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 152, 36)
-               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 152+12, 36+12)
+     
+        base_itemy = [0, 64, 75, 100] #furthest to closest. index 0 is unused
+        base_itemx = [[0,0,0], [25, 112, 185], [15, 112, 205], [10, 112, 210] ] # [row] [left, mid, right]
+        scale = [0, 0.6, 0.8, 1]
         
+        
+        for row in range(4):
+                for key, val in objdicts[row].items():
+
+                   if b_obj[key]: self.objectimages[obj[key]][val].Blit(self.left, self.top)
+     
+                   if row>0:
+                        draw = True
+                        side=0     
+                        
+                        if "left" in val: side=0
+                        elif "mid" in val: side=1
+                        elif "right" in val: side=2
+                        
+                        if row==3 and side in (0, 2):
+                            draw = False #Hack! Don't draw item if in last row and on either side. 
+                        
+                        if f_items[key] and draw:
+                            for i, item in enumerate(f_items[key]): 
+                                
+                                w = int( (item.w*16 * scale[row]) / 2) #divide by 2 so can use half to +- from the base
+                                h = int( (item.h*12 * scale[row])) #using 12 instead of 16 to give a squished perspective view
+                            
+                                topleft  = (base_itemx[row][side] - w  + (i *2), base_itemy[row] - item_offset[key] + (i *2))
+                                topright = (base_itemx[row][side] + w  + (i *2), base_itemy[row] - item_offset[key] + (i *2)) 
+                                botright = (base_itemx[row][side] + w  + (i *2), base_itemy[row] + h - item_offset[key] + (i *2)) 
+                                botleft  = (base_itemx[row][side] - w  + (i *2), base_itemy[row] + h - item_offset[key] + (i *2)) 
+                                
+                                ika.Video.DistortBlit(item.img, topleft, topright, botright, botleft)
+                                
+                                #topleft  = (base_itemx[row][side] - w, base_itemy[row])
+                                #topright = (base_itemx[row][side] + w, base_itemy[row])
+                                #botright = (base_itemx[row][side] + w, base_itemy[row] + h)
+                                #botleft  = (base_itemx[row][side] - w, base_itemy[row] + h)
+                                
+                                ika.Video.DistortBlit(item.img, topleft, topright, botright, botleft)
+                                  
+                        
+                        """                          
+                        if(ents[18]):
+                           for e in ents[18]: 
+                               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 50, 36)
+                               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 50+12, 36+12)                               
+                        if(ents[19]):
+                           for e in ents[19]: 
+                               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 101, 36)
+                               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 101+12, 36+12)
+                        if(ents[20]):
+                           for e in ents[20]: 
+                               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 152, 36)
+                               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 152+12, 36+12)
+                        """
+                    
+                """           
+                elif row==2:
+                    if f_items[10]:
+                       for i in f_items[10]: ika.Video.DistortBlit(i.img,
+                                          (15, 75-item_offset[10]), (15+12*i.w, 75-item_offset[10]),
+                                          (15+12*i.w,75+(10-i.h)*i.h-item_offset[10]), (15, 75+(10-i.h)*i.h-item_offset[10]))
+                    if f_items[11]:
+                       for i in f_items[11]: ika.Video.DistortBlit(i.img,
+                                          (110, 75-item_offset[11]), (110+12*i.w, 75-item_offset[11]),
+                                          (110+12*i.w,75+(10-i.h)*i.h-item_offset[11]), (110, 75+(10-i.h)*i.h-item_offset[11]))
+                    if f_items[12]:
+                       for i in f_items[12]: ika.Video.DistortBlit(i.img,
+                                          (205, 75-item_offset[12]), (205+12*i.w, 75-item_offset[12]),
+                                          (205+12*i.w,75+(10-i.h)*i.h-item_offset[12]), (205, 75+(10-i.h)*i.h-item_offset[12]))
+
+                    if(ents[10]):
+                       for e in ents[10]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 7, 32)
+                           if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 7, 32)
+                           elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
+                    if(ents[11]):
+                       for e in ents[11]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 89, 32)
+                           if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 89, 32)
+                           elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
+                    if(ents[12]):
+                       for e in ents[12]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 170, 32)
+                           if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 170, 32)
+                           elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
+                elif row==3:
+                    if f_items[4]:
+                       for i in f_items[4]: ika.Video.DistortBlit(i.img,
+                                                      (10, 96-i.h-item_offset[4]), (10+16*i.w, 96-i.h-item_offset[4]),
+                                                      (10+16*i.w,96+(14-i.h*2)*i.h-item_offset[4]), (10, 96+(14-i.h*2)*i.h-item_offset[4]))
+                    if f_items[5]:
+                       for i in f_items[5]: ika.Video.DistortBlit(i.img,
+                                                      (107, 96-i.h-item_offset[5]), (107+16*i.w, 96-i.h-item_offset[5]),
+                                                      (107+16*i.w,96+(14-i.h*2)*i.h-item_offset[5]), (107, 96+(14-i.h*2)*i.h-item_offset[5]))
+                    if f_items[6]:
+                       for i in f_items[6]: ika.Video.DistortBlit(i.img,
+                                                      (210, 96-i.h-item_offset[6]), (210+16*i.w, 96-i.h-item_offset[6]),
+                                                      (210+16*i.w,96+(14-i.h*2)*i.h-item_offset[6]), (210, 96+(14-i.h*2)*i.h-item_offset[6]))
+
+                    if(ents[4]):
+                       for e in ents[4]: #ika.Video.Blit(e.GetFrame(self.facing, 0), -58, 30)
+                           if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), -58, 30)
+                           elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), -58+32, 30+32, e.color)   
+                    if(ents[5]):
+                       for e in ents[5]: #ika.Video.Blit(e.GetFrame(self.facing, 0), 73, 30)
+                           if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), 73, 30)
+                           elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), 73+32, 30+8, e.color)   
+                    if(ents[6]):
+                       for e in ents[6]: #ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
+                           if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
+                           elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), 198+32, 30+32, e.color)   
+                """    
+
+                for key, val in fwalldicts[row].items():              
+                      if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)              
+                      for l in range(len(decal_layers)):
+                          if b_decals[l][key]:  
+                            if self.facetable[self.facing] == decalf[l][key]:
+                               self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
+
+                for key, val in pwalldicts[row].items():
+                      if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
+                      for l in range(len(decal_layers)):
+                          if b_decals[l][key]:  #and facing is correct
+                            if ("left" in val and self.facetable_l[self.facing] == decalf[l][key]) or \
+                               ("right" in val and self.facetable_r[self.facing] == decalf[l][key]):                 
+                                 self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
 
 
-        for key, val in fwalldicts[1].items():              
-              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)              
-              for l in range(len(decal_layers)):
-                  if b_decals[l][key]:  
-                    if self.facetable[self.facing] == decalf[l][key]:
-                       self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
-
-        for key, val in pwalldicts[1].items():
-              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
-              for l in range(len(decal_layers)):
-                  if b_decals[l][key]:  #and facing is correct
-                    if ("left" in val and self.facetable_l[self.facing] == decalf[l][key]) or \
-                       ("right" in val and self.facetable_r[self.facing] == decalf[l][key]):                 
-                         self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
 
 
-
-
-        ##### Row 1 ############################################################################
-
-        for key, val in objdicts[2].items():
-          try:
-           if b_obj[key]: self.objectimages[obj[key]][val].Blit(self.left, self.top)
-          except:
-           ika.Log("key: "+str(key))
-           ika.Log("obj[key]: "+str(obj[key]))
-           ika.Log("val: "+str(val))
-           ika.Log("key: "+str(key))
-        #if(obj[10]): obj[10][3].Blit(self.left, self.top)
-        #if(obj[11]): obj[11][4].Blit(self.left, self.top)
-        #if(obj[12]): obj[12][5].Blit(self.left, self.top)
-
-        if f_items[10]:
-           for i in f_items[10]: ika.Video.DistortBlit(i.img,
-                                  (15, 75-item_offset[10]), (15+12*i.w, 75-item_offset[10]),
-                                  (15+12*i.w,75+(10-i.h)*i.h-item_offset[10]), (15, 75+(10-i.h)*i.h-item_offset[10]))
-        if f_items[11]:
-           for i in f_items[11]: ika.Video.DistortBlit(i.img,
-                                  (110, 75-item_offset[11]), (110+12*i.w, 75-item_offset[11]),
-                                  (110+12*i.w,75+(10-i.h)*i.h-item_offset[11]), (110, 75+(10-i.h)*i.h-item_offset[11]))
-        if f_items[12]:
-           for i in f_items[12]: ika.Video.DistortBlit(i.img,
-                                  (205, 75-item_offset[12]), (205+12*i.w, 75-item_offset[12]),
-                                  (205+12*i.w,75+(10-i.h)*i.h-item_offset[12]), (205, 75+(10-i.h)*i.h-item_offset[12]))
-
-        if(ents[10]):
-           for e in ents[10]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 7, 32)
-               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 7, 32)
-               elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
-        if(ents[11]):
-           for e in ents[11]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 89, 32)
-               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 89, 32)
-               elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
-        if(ents[12]):
-           for e in ents[12]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 170, 32)
-               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 170, 32)
-               elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
-
-        for key, val in fwalldicts[2].items():
-              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
-              for l in range(len(decal_layers)):
-                  if b_decals[l][key]:  
-                    if self.facetable[self.facing] == decalf[l][key]:
-                       self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
-                   
-        for key, val in pwalldicts[2].items():
-              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
-              for l in range(len(decal_layers)):
-                  if b_decals[l][key]:  
-                    if ("left" in val and self.facetable_l[self.facing] == decalf[l][key]) or \
-                       ("right" in val and self.facetable_r[self.facing] == decalf[l][key]):                 
-                         self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
-
-
-
-        ##### Row 0 ############################################################################
-        for key, val in objdicts[3].items():
-           if b_obj[key]: self.objectimages[obj[key]][val].Blit(self.left, self.top)
-           
-        #if(obj[4]): obj[4][0].Blit(self.left, self.top)
-        #if(obj[5]): obj[5][1].Blit(self.left, self.top)
-        #if(obj[6]): obj[6][2].Blit(self.left, self.top)
-
-        if f_items[4]:
-           for i in f_items[4]: ika.Video.DistortBlit(i.img,
-                                          (10, 96-i.h-item_offset[4]), (10+16*i.w, 96-i.h-item_offset[4]),
-                                          (10+16*i.w,96+(14-i.h*2)*i.h-item_offset[4]), (10, 96+(14-i.h*2)*i.h-item_offset[4]))
-        if f_items[5]:
-           for i in f_items[5]: ika.Video.DistortBlit(i.img,
-                                          (107, 96-i.h-item_offset[5]), (107+16*i.w, 96-i.h-item_offset[5]),
-                                          (107+16*i.w,96+(14-i.h*2)*i.h-item_offset[5]), (107, 96+(14-i.h*2)*i.h-item_offset[5]))
-        if f_items[6]:
-           for i in f_items[6]: ika.Video.DistortBlit(i.img,
-                                          (210, 96-i.h-item_offset[6]), (210+16*i.w, 96-i.h-item_offset[6]),
-                                          (210+16*i.w,96+(14-i.h*2)*i.h-item_offset[6]), (210, 96+(14-i.h*2)*i.h-item_offset[6]))
-
-        if(ents[4]):
-           for e in ents[4]: #ika.Video.Blit(e.GetFrame(self.facing, 0), -58, 30)
-               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), -58, 30)
-               elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), -58+32, 30+32, e.color)   
-        if(ents[5]):
-           for e in ents[5]: #ika.Video.Blit(e.GetFrame(self.facing, 0), 73, 30)
-               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), 73, 30)
-               elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), 73+32, 30+8, e.color)   
-        if(ents[6]):
-           for e in ents[6]: #ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
-               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
-               elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), 198+32, 30+32, e.color)   
-
-        for key, val in fwalldicts[3].items():
-              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
-              for l in range(len(decal_layers)):
-                  if b_decals[l][key]:  
-                    if self.facetable[self.facing] == decalf[l][key]:
-                       self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
-
-        for key, val in pwalldicts[3].items():
-              if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
-              for l in range(len(decal_layers)):
-                  if b_decals[l][key]:  #and facing is correct
-                    if ("left" in val and self.facetable_l[self.facing] == decalf[l][key]) or \
-                       ("right" in val and self.facetable_r[self.facing] == decalf[l][key]):                 
-                         self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
+    
 
         ika.Video.ClipScreen() 
         
