@@ -274,7 +274,10 @@ class Engine(object):
                        "final": {}   
                      }
                     #x, y, facing, action, clickable=False, clickarea=(0,0,0,0)):
-        self.global_switches = { "medsci": { (8, 3): [Switch(8, 3, WEST, scripts.OpenDoor1, True, (148, 56, 12, 17))  ] },
+        self.global_switches = { 
+                    "medsci": { (8, 3): [Switch(8, 3, WEST, scripts.OpenDoor1, True, (148, 56, 12, 17))], 
+                                (8, 11): [Switch(8, 11, WEST, scripts.OpenDoor2, True, (148, 56, 12, 17))]
+                              },
                         "office": {},
                        "operations": {},
                        "barracks": {},
@@ -839,7 +842,7 @@ class Engine(object):
              if e.x == x and e.y == y and not e.dead and isinstance(e, entity.Enemy):
                 return True #enemy found, blocked
           return False
-       return True #obsutrction found
+       return True #obstruction found
 
 
     def DrawWalls(self):
@@ -942,7 +945,7 @@ class Engine(object):
                    f_items[t] = self.items[(int(self.plrx+x), int(self.plry+y))]
                    
                    if o in [OBJECT_TABLE, OBJECT_MEDTABLE]: #hack to draw items at proper height on tables, object numbers 0 and 1
-                      item_offset[t] = 32/(i+1)
+                      item_offset[t] = [48, 11, 9,0][i]
                    elif o+self.objnum == [OBJECT_CRATE]: #crate 
                       item_offset[t] = 32/(i+1) + 24
 
@@ -976,13 +979,21 @@ class Engine(object):
         
      
         base_itemy = [0, 64, 75, 100] #furthest to closest. index 0 is unused
-        base_itemx = [[0,0,0], [25, 112, 185], [15, 112, 205], [10, 112, 210] ] # [row] [left, mid, right]
-        scale = [0, 0.6, 0.8, 1]
+        base_itemx = [[0,0,0], [25, 116, 185], [15, 116, 205], [10, 116, 210] ] # [row] [left, mid, right]
+        scale = [0, 0.4, 0.75, 1]
+        
+        base_entityy = [0, 36, 32, 30] #furthest to closest. index 0 is unused
+        base_entityx = [[0,0,0], [50, 101, 152], [7, 89, 170], [-58, 73, 198] ] # [row] [left, mid, right]
+        entrow = [3,2,1,0]
         
         
         for row in range(4):
-                for key, val in objdicts[row].items():
-
+        
+        
+        
+                #using objects dict to draw objects, items and 
+                for key, val in objdicts[row].items():                   
+                   #objects are refreshingly simple to draw currently...
                    if b_obj[key]: self.objectimages[obj[key]][val].Blit(self.left, self.top)
      
                    if row>0:
@@ -999,13 +1010,15 @@ class Engine(object):
                         if f_items[key] and draw:
                             for i, item in enumerate(f_items[key]): 
                                 
-                                w = int( (item.w*16 * scale[row]) / 2) #divide by 2 so can use half to +- from the base
-                                h = int( (item.h*12 * scale[row])) #using 12 instead of 16 to give a squished perspective view
-                            
-                                topleft  = (base_itemx[row][side] - w  + (i *2), base_itemy[row] - item_offset[key] + (i *2))
-                                topright = (base_itemx[row][side] + w  + (i *2), base_itemy[row] - item_offset[key] + (i *2)) 
-                                botright = (base_itemx[row][side] + w  + (i *2), base_itemy[row] + h - item_offset[key] + (i *2)) 
-                                botleft  = (base_itemx[row][side] - w  + (i *2), base_itemy[row] + h - item_offset[key] + (i *2)) 
+                                w = int( (item.w*16) * (scale[row]) / 2) #divide by 2 so can use half to +- from the base
+                                h = int( (item.h*12) * (scale[row]) ) #using 12 instead of 16 to give a squished perspective view
+                                yoffset = (item.h-1) * 6 # hack! move up 6 pixels for every extra tile of item height
+                                
+                                #add (i*2) to move down 2 pixels for each stack. May need to put a max number of items in a stack to prevent weirdness..
+                                topleft  = (base_itemx[row][side] - w  + (i*2), base_itemy[row] - item_offset[key] - yoffset + (i*2))
+                                topright = (base_itemx[row][side] + w  + (i*2), base_itemy[row] - item_offset[key] - yoffset + (i*2)) 
+                                botright = (base_itemx[row][side] + w  + (i*2), base_itemy[row] + h - item_offset[key] - yoffset + (i*2)) 
+                                botleft  = (base_itemx[row][side] - w  + (i*2), base_itemy[row] + h - item_offset[key] - yoffset + (i*2)) 
                                 
                                 ika.Video.DistortBlit(item.img, topleft, topright, botright, botleft)
                                 
@@ -1014,14 +1027,17 @@ class Engine(object):
                                 #botright = (base_itemx[row][side] + w, base_itemy[row] + h)
                                 #botleft  = (base_itemx[row][side] - w, base_itemy[row] + h)
                                 
-                                ika.Video.DistortBlit(item.img, topleft, topright, botright, botleft)
+                                #ika.Video.DistortBlit(item.img, topleft, topright, botright, botleft)
                                   
                         
-                        """                          
-                        if(ents[18]):
-                           for e in ents[18]: 
-                               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 50, 36)
-                               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 50+12, 36+12)                               
+                        
+                        
+
+                        if(ents[key]):
+                           for e in ents[key]: 
+                               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, entrow[row]), base_entityx[row][side], base_entityy[row])
+                               #elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 50+12, 36+12)                               
+                        """
                         if(ents[19]):
                            for e in ents[19]: 
                                if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 101, 36)
@@ -1086,14 +1102,14 @@ class Engine(object):
                            if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
                            elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), 198+32, 30+32, e.color)   
                 """    
-
+                #front facing walls and decals
                 for key, val in fwalldicts[row].items():              
                       if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)              
                       for l in range(len(decal_layers)):
                           if b_decals[l][key]:  
                             if self.facetable[self.facing] == decalf[l][key]:
                                self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
-
+                #perspective walls and decals
                 for key, val in pwalldicts[row].items():
                       if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
                       for l in range(len(decal_layers)):

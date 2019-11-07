@@ -37,12 +37,12 @@
 			)
 			(data 
 				(format 'zlib')
-				'eJzs2gGLgjAYBuCZXVz3/3/wJSKN3b5NFx5BzwOj2mbC9zY1MaVzTY82V9p08n6pi+ouj7YpPX/LU9Yuj/ZTafdi3hy85u1afCY2B/3XTv+l873ReLQ/VlF9onpOnfHe9vJok8d7Gc3jq/O98hiznbtL98b8FGyTk8eYpT7flf78Oiqlv9dH8jjHUp+8dtv7WzDf9dW5ovpEeeT/T3rtyP5YjeSxRzRPHm3yeC9L3W6VVrvPUWvlnPxzjTzaovqU11XReEQeY3r3YaM8ovtb+fZH1g2r3n3YV9dHOc/6aNtT11fyKNeRPNr2nrdLe45X+etGHm1nrw/nj2NGf6+j5w95tI3m0TtebeOOV8f8x/HqyHafLn8uofZsTvnsQtmf95Xj0XsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPgUvwAAAP//'
+				'eJzs2oFugjAUBdAizs39/wdPQohN19dCDcsSz0katS2SvGsBCSmda3q0udKmk/dLXVR3ebRN6flbnrJ2ebTvSrsX8+bgNW/X4jOxOei/dvovne+NxqP9sYrqE9Vz6oz3tpdHmzz+l9E8PjrfK48x27m7dG/MT8E2OXmMWerzVenPr6NS+n19JI9zLPXJa7e9vwXzXV+dK6pPlEf+/6TXjuyPVVSfz6B/7/+5aJ482kbWxx7yGLPU7VZptfsctVbOyT/XyKMtqk95XRWNR+QxpncfNsojur+Vb39k3bDq3Yd9dX2U86yPtj11fSWPch3Jo23vebu053iVv27k0Xb2+nD+OGb09zp6/pBH22gevePVNu54dcxfHK+ObPfu8ucSas/mlM8ulP15XzkevQcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgHfxAwAA//8='
 			)
 			(obstructions 
 				(style 'tile')
 				(format 'zlib')
-				'eJzslMsOwyAMBL3//9NVA8WGhh7aRb3MHDAQyRu/iLhHjc1XDyqrwduO8MXx9JV/PFufRl117dKe0ei3qieThl5LlAh8NR9+pakexjiaRu+jUY9r49TQW5UP9tU0H04Njczn0NUeMGhoVWrncM55vhz5hMg8g+ptNHo4rT1Xmm+1Xv2kMdITNQ7/exVncxVlIOqtVaPbNVfOetwrmuO496Ttl280milvfNjj+IRJAwAAAAAAAAAAAAAAAAAA/sEDAAD//w=='
+				'eJzslMsOwyAMBL3//9NVA8EmDTm0i3qZOWACkjd+4Ih71FjcelBZDd5WhC+Ot6/849n6NOqqY5d2j0Y/Vf0yaehcokTgq/nwK031MMbRNHofjXocG6eGPqq8sa+m9+HUmLup7HxvUKmUPs8ecGmMyZEjROY3qN5Go4fT2nOl+VTXo580RnqixuGfV7E3V1EeRD21anR7zZWzHveK5jjuPWl5841GM2XGhz2OJ0waAAAAAAAAAAAAAAAAAADwD14AAAD//w=='
 			)
 			(entities )
 			(zones )
@@ -70,7 +70,7 @@
 			)
 			(data 
 				(format 'zlib')
-				'eJzs2OuOgyAQBlAforW+/5N2+WGWTAVB3bCp5ySNGnsxM/IhnSbuah59AXDS8+e1VM7X7vHXxddyd2s9j+TKY+c477G+jbUU9jkmZdgcjkviuFiZy//GMv3e43tzyZzt55+n3dH5ujZ/LGFLn9iTdLxm1FZWxffX+jbvnOfTmeesLXnGXfm9d/AI25ravJ6sdY85JbfaxDrluVLLq97f0I+x0jjRg36pZnnttmrYmv3+Vzkv1v/IvPsq7HOdvC9bNS7V3XPUtXrWCq21N2bGM074RrJlvJb1Xil/WnLp7HryjmJde9Zy6g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPx3bwAAAP//'
+				'eJzs2G2OgyAQAFAP0Vrvf9IuP8ySqSCoGzb1vaQRYj/MjMxIp4m7mkdfAJz0/HktlfO1e/x18bXc3RrPI3XlsTPPcyxvYy2FMcekGjaHeUlcFyu9/G8s0+89vtdL5mycf552R/t1rX8s4UifmJM0X2vUVq2K76/lbd45z6czz1lb8hp35ffewSMca/dyra8na9xjnVK32sQ45bmo1ave35CPsdI6kYN+KWZ57LZi2Fr7/a9yXoz/kb77Koy5Tp6XrRiX4u456lo9e4XW2Fsz41knfCO1ZbyW/V6p/rTUpbP7yTuKce3Zy4k3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADw370BAAD//w=='
 			)
 			(obstructions 
 				(style 'tile')
@@ -136,7 +136,7 @@
 			)
 			(data 
 				(format 'zlib')
-				'eJzs1TsKgEAMRdFZooq//a/ERsWRaWx8guc0aS+EkFKAp6Z0AKfrLrpYBS1jOoBKnw6gMqQDfqz1w/31b1n2Od8m7zruYo1WAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADkbAAAAP//'
+				'eJzs1zsKgDAQQMEcUcVP7n8SGxUjadK4QWeabR8sYUlKQKslOoDLfRdDWAU1c3QAhTE6gMIUHfBjtRvurvdlO+b6mLzrfBc5tAL65v8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8G07AAAA//8='
 			)
 			(obstructions 
 				(style 'tile')
@@ -169,12 +169,12 @@
 			)
 			(data 
 				(format 'zlib')
-				'eJzs0z0KgDAMBtAezOjg/e/kUqSULi4m0PeW/EyBj7QGfHVmH8Arhv5Ku4IVedQij1rkkScWO3nUcvca08y/jl79BwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACwqwcAAP//'
+				'eJzs0z0KgDAMBtAezOjg/e/kUqSUOriYIO8t+ZkCH2kNeGvPPoBbDP2RdgUr8qhFHrXII08sdvKo5ew1pplvbb36D3jmPwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+7QIAAP//'
 			)
 			(obstructions 
 				(style 'tile')
 				(format 'zlib')
-				'eJzswQENAAAAwqD3T20ON6AAAAAAAAAAAADg3wAAAP//'
+				'eJzszjENAAAIA7Dh3zQmlnDQKmgC0DPXAQAAAAAAAAAA3loAAAD//w=='
 			)
 			(entities )
 			(zones )
@@ -202,7 +202,7 @@
 			)
 			(data 
 				(format 'zlib')
-				'eJzszrENADAIAzB+bMX/p3Rm7RIJ2Re4CmCHkw4wdDoAAHy76QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQNgDAAD//w=='
+				'eJzszrEJACAQBLBfURT3H8XaVpBDSSZIFcAfejrAZqYDAMCxkQ7AA1o6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMBVCwAA//8='
 			)
 			(obstructions 
 				(style 'tile')
@@ -235,7 +235,7 @@
 			)
 			(data 
 				(format 'zlib')
-				'eJzs1UENAAAIAzG84d8TbxQQoFVwyR6LALghpwNo7AEAe/lxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOC7AgAA//8='
+				'eJzs1bEJAAAIAzB/8/+fnJ0cRUkuKJTSCIAfcjsAjT4A4C4/DjM7AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPitAAAA//8='
 			)
 			(obstructions 
 				(style 'tile')
