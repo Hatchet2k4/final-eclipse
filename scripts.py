@@ -14,11 +14,8 @@ flags = {
 ##todo, pass args
 #todo, make a template for this type of door code
 
-def OpenDoor1():
-    
-    if type(engine.engine.inv.grabbeditem) == inventory.BlueKey:    
-        
-    
+def OpenDoor1():    
+    if type(engine.engine.inv.grabbeditem) == inventory.BlueKey:                
         #TODO: changes to the map need to persist. Create engine functions to set the tiles, and these changes are stored as keys in another global dict. 
         
         if flags["door1opened"]: #door is open, try to close it

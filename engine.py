@@ -977,20 +977,18 @@ class Engine(object):
                      { 10: "2left", 11: "2mid", 12: "2right" },  
                      { 4: "1left", 5: "1mid", 6: "1right"}  ]
         
-     
+        #locations for items
         base_itemy = [0, 64, 75, 100] #furthest to closest. index 0 is unused
         base_itemx = [[0,0,0], [25, 116, 185], [15, 116, 205], [10, 116, 210] ] # [row] [left, mid, right]
         scale = [0, 0.4, 0.75, 1]
         
+        #locations for entities
         base_entityy = [0, 36, 32, 30] #furthest to closest. index 0 is unused
-        base_entityx = [[0,0,0], [50, 101, 152], [7, 89, 170], [-58, 73, 198] ] # [row] [left, mid, right]
-        entrow = [3,2,1,0]
+        base_entityx = [[0,0,0], [50, 101, 152], [7, 89, 170], [-58, 73, 198] ] # [row] [left, mid, right]        
+        entrow = [3,2,1,0] #reverses the row index since the facing is stored closest to furthest
         
         
-        for row in range(4):
-        
-        
-        
+        for row in range(4):                       
                 #using objects dict to draw objects, items and 
                 for key, val in objdicts[row].items():                   
                    #objects are refreshingly simple to draw currently...
@@ -1012,96 +1010,19 @@ class Engine(object):
                                 
                                 w = int( (item.w*16) * (scale[row]) / 2) #divide by 2 so can use half to +- from the base
                                 h = int( (item.h*12) * (scale[row]) ) #using 12 instead of 16 to give a squished perspective view
-                                yoffset = (item.h-1) * 6 # hack! move up 6 pixels for every extra tile of item height
-                                
+                                yoffset = (item.h-1) * 6 # hack! move up 6 pixels for every extra tile of item height                                
                                 #add (i*2) to move down 2 pixels for each stack. May need to put a max number of items in a stack to prevent weirdness..
                                 topleft  = (base_itemx[row][side] - w  + (i*2), base_itemy[row] - item_offset[key] - yoffset + (i*2))
                                 topright = (base_itemx[row][side] + w  + (i*2), base_itemy[row] - item_offset[key] - yoffset + (i*2)) 
                                 botright = (base_itemx[row][side] + w  + (i*2), base_itemy[row] + h - item_offset[key] - yoffset + (i*2)) 
-                                botleft  = (base_itemx[row][side] - w  + (i*2), base_itemy[row] + h - item_offset[key] - yoffset + (i*2)) 
-                                
-                                ika.Video.DistortBlit(item.img, topleft, topright, botright, botleft)
-                                
-                                #topleft  = (base_itemx[row][side] - w, base_itemy[row])
-                                #topright = (base_itemx[row][side] + w, base_itemy[row])
-                                #botright = (base_itemx[row][side] + w, base_itemy[row] + h)
-                                #botleft  = (base_itemx[row][side] - w, base_itemy[row] + h)
-                                
-                                #ika.Video.DistortBlit(item.img, topleft, topright, botright, botleft)
-                                  
-                        
-                        
-                        
+                                botleft  = (base_itemx[row][side] - w  + (i*2), base_itemy[row] + h - item_offset[key] - yoffset + (i*2))                                 
+                                ika.Video.DistortBlit(item.img, topleft, topright, botright, botleft)                                
 
-                        if(ents[key]):
+                        if(ents[key]): #enemies and entities next!
                            for e in ents[key]: 
                                if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, entrow[row]), base_entityx[row][side], base_entityy[row])
                                #elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 50+12, 36+12)                               
-                        """
-                        if(ents[19]):
-                           for e in ents[19]: 
-                               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 101, 36)
-                               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 101+12, 36+12)
-                        if(ents[20]):
-                           for e in ents[20]: 
-                               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 2), 152, 36)
-                               elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 152+12, 36+12)
-                        """
-                    
-                """           
-                elif row==2:
-                    if f_items[10]:
-                       for i in f_items[10]: ika.Video.DistortBlit(i.img,
-                                          (15, 75-item_offset[10]), (15+12*i.w, 75-item_offset[10]),
-                                          (15+12*i.w,75+(10-i.h)*i.h-item_offset[10]), (15, 75+(10-i.h)*i.h-item_offset[10]))
-                    if f_items[11]:
-                       for i in f_items[11]: ika.Video.DistortBlit(i.img,
-                                          (110, 75-item_offset[11]), (110+12*i.w, 75-item_offset[11]),
-                                          (110+12*i.w,75+(10-i.h)*i.h-item_offset[11]), (110, 75+(10-i.h)*i.h-item_offset[11]))
-                    if f_items[12]:
-                       for i in f_items[12]: ika.Video.DistortBlit(i.img,
-                                          (205, 75-item_offset[12]), (205+12*i.w, 75-item_offset[12]),
-                                          (205+12*i.w,75+(10-i.h)*i.h-item_offset[12]), (205, 75+(10-i.h)*i.h-item_offset[12]))
-
-                    if(ents[10]):
-                       for e in ents[10]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 7, 32)
-                           if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 7, 32)
-                           elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
-                    if(ents[11]):
-                       for e in ents[11]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 89, 32)
-                           if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 89, 32)
-                           elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
-                    if(ents[12]):
-                       for e in ents[12]: #ika.Video.Blit(e.GetFrame(self.facing, 1), 170, 32)
-                           if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 1), 170, 32)
-                           elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 1), 50+8, 32+8, e.color)   
-                elif row==3:
-                    if f_items[4]:
-                       for i in f_items[4]: ika.Video.DistortBlit(i.img,
-                                                      (10, 96-i.h-item_offset[4]), (10+16*i.w, 96-i.h-item_offset[4]),
-                                                      (10+16*i.w,96+(14-i.h*2)*i.h-item_offset[4]), (10, 96+(14-i.h*2)*i.h-item_offset[4]))
-                    if f_items[5]:
-                       for i in f_items[5]: ika.Video.DistortBlit(i.img,
-                                                      (107, 96-i.h-item_offset[5]), (107+16*i.w, 96-i.h-item_offset[5]),
-                                                      (107+16*i.w,96+(14-i.h*2)*i.h-item_offset[5]), (107, 96+(14-i.h*2)*i.h-item_offset[5]))
-                    if f_items[6]:
-                       for i in f_items[6]: ika.Video.DistortBlit(i.img,
-                                                      (210, 96-i.h-item_offset[6]), (210+16*i.w, 96-i.h-item_offset[6]),
-                                                      (210+16*i.w,96+(14-i.h*2)*i.h-item_offset[6]), (210, 96+(14-i.h*2)*i.h-item_offset[6]))
-
-                    if(ents[4]):
-                       for e in ents[4]: #ika.Video.Blit(e.GetFrame(self.facing, 0), -58, 30)
-                           if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), -58, 30)
-                           elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), -58+32, 30+32, e.color)   
-                    if(ents[5]):
-                       for e in ents[5]: #ika.Video.Blit(e.GetFrame(self.facing, 0), 73, 30)
-                           if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), 73, 30)
-                           elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), 73+32, 30+8, e.color)   
-                    if(ents[6]):
-                       for e in ents[6]: #ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
-                           if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, 0), 198, 30)
-                           elif isinstance(e, entity.Projectile):  ika.Video.TintBlit(e.GetFrame(self.facing, 0), 198+32, 30+32, e.color)   
-                """    
+    
                 #front facing walls and decals
                 for key, val in fwalldicts[row].items():              
                       if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)              
@@ -1118,27 +1039,9 @@ class Engine(object):
                                ("right" in val and self.facetable_r[self.facing] == decalf[l][key]):                 
                                  self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
 
-
-
-
-    
-
-        ika.Video.ClipScreen() 
+        ika.Video.ClipScreen() #stop clipping now.
         
-        ##### Drawing done! #####
-
-
-	#self.cw1[0].Blit(self.left, self.top)
-	#self.texturetest.Blit(self.left+15, self.top+6)
-	
-	#uncomment for fun texture distortion :D 
-	#self.texturetest.DistortBlit((self.left+15, self.top+6),
-	#			     (self.left+53, self.top+20),
-	#			     (self.left+53, self.top+89),
-	#			     (self.left+15, self.top+117)    	
-	
-	#)
-	
+        ##### Drawing done! #####	
 
 
     def GetEnts(self, x, y):
