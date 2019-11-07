@@ -129,8 +129,11 @@ class Engine(object):
            self.backgrounds[d] = [ika.Image("img/backgrounds/"+d+"1.png"), ika.Image("img/backgrounds/"+d+"2.png")]
 
        #Lists of all resources for walls, decals and objects. The order is important, as it's based on the order in tileset. 
-       walllist = ["med1", "med2", "med1win", "med1door", "med2door", "military", "militarydoor", "bed", "final", "finalspace"]       
-       decallist = ["door", "dcode_r", "dcode_g", "dkey_r", "dkey_g", "blood_sm", "blood_big", "switch1", "switch2"] # /4 for each direction
+       walllist = ["med1", "med2", "med1win", "med1door", "med2door", "military", "militarydoor", "bed", "final", "finalspace"]    
+
+       
+       decallist = ["door", "dcode_g", "dcode_r", "dkey_r", "dkey_g", "blood_sm", "blood_big", "switch1", "switch2"]
+       
        objlist = ["table", "medtable", "blood_floor1", "blood_floor2", "crate"] 
        
        imglist = ["flat1left", "flat1mid", "flat1right", "per1left", "per1right", "flat2left", "flat2mid", "flat2right", 
@@ -468,7 +471,7 @@ class Engine(object):
                   if self.inv.grabbeditem is None: #not holding an item, try to grab one
                      #todo: code pressing buttons
                      # if facing a wall directly ahead and wall contains a pressable item, find the clickable area and compare to activate
-                    if not self.GetObs(self.plrx+offx, self.plry+offy): #don't try to grab from obstructed square
+                    if not ika.Map.GetTile(self.plrx+offx, self.plry+offy, 0): #don't try to grab from tiles that have walls. Bug if items are placed in a doorway..
 
                         if self.items.has_key((self.plrx+offx, self.plry+offy)): #item exists here
                             self.inv.grabbeditem = self.items[(self.plrx+offx, self.plry+offy)].pop() #grabs only the first item out of the list
@@ -476,7 +479,7 @@ class Engine(object):
                             if len(self.items[(self.plrx+offx, self.plry+offy)]) == 0:
                                del self.items[(self.plrx+offx, self.plry+offy)] #delete out of dict if it's empty
                   else: #holding an item, try to place it                        
-                     if not self.GetObs(self.plrx+offx, self.plry+offy): #don't try to place onto an obstruction
+                     if not ika.Map.GetTile(self.plrx+offx, self.plry+offy, 0): #don't try to place onto a wall. Does not work for doors..
                          if self.items.has_key((self.plrx+offx, self.plry+offy)):
                             self.items[(self.plrx+offx, self.plry+offy)].append(self.inv.grabbeditem)
                          else:
@@ -833,8 +836,8 @@ class Engine(object):
     def GetObs(self, x, y):
        if not ika.Map.GetObs(x,y,0):
           for e in self.entities:
-             if e.x == x and e.y == y and not e.dead:
-                return True #entity found
+             if e.x == x and e.y == y and not e.dead and isinstance(e, entity.Enemy):
+                return True #enemy found, blocked
           return False
        return True #obsutrction found
 
