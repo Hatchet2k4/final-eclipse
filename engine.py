@@ -7,11 +7,14 @@ import sound
 import pda
 import credits
 import scripts 
+import wrapper
 
 ika.SetCaption(ika.GetCaption() + " - Final Eclipse")
 engine = None
 #intro.Start()
 #credits.Start()
+
+
 
 class Engine(object):
     def __init__(self):
@@ -1013,8 +1016,7 @@ class Engine(object):
                             draw = False #Hack! Don't draw item if in last row and on either side. 
                         
                         if f_items[key] and draw:
-                            for i, item in enumerate(f_items[key]): 
-                                
+                            for i, item in enumerate(f_items[key]):                                 
                                 w = int( (item.w*16) * (scale[row]) / 2) #divide by 2 so can use half to +- from the base
                                 h = int( (item.h*12) * (scale[row]) ) #using 12 instead of 16 to give a squished perspective view
                                 yoffset = (item.h-1) * 6 # hack! move up 6 pixels for every extra tile of item height                                
