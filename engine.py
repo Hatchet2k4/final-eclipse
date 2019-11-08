@@ -155,6 +155,13 @@ class Engine(object):
 
             self.decalimages.append(d)         
 
+       self.decalimages.append(self.wallimages[0])
+       self.decalimages.append(self.wallimages[1])
+       self.decalimages.append(self.wallimages[2])
+       self.decalimages.append(self.wallimages[4])       
+       self.decalimages.append(self.wallimages[5])       
+       self.decalimages.append(self.wallimages[6])       
+
        
        imglist = ["1left", "1mid","1right",
                    "2left", "2mid","2right",
@@ -333,14 +340,45 @@ class Engine(object):
 
             ika.Input.Update()
 
+
+            ###process input ###
+
+            if ika.Input.keyboard['RCTRL'].Position() or ika.Input.keyboard['LCTRL'].Position() or self.MouseM():
+               self.Attack()
+
+            if ika.Input.keyboard['R'].Pressed():
+               self.Reload()
+
+            if ika.Input.keyboard['F'].Pressed():
+               if self.equip.lefthand:
+                  self.equip.lefthand.Use()
+                  if isinstance(self.equip.lefthand, Stackable) and self.equip.lefthand.count == 0:
+                     self.equip.lefthand = None
+
+            if ika.Input.keyboard['M'].Pressed() or ika.Input.keyboard['1'].Pressed():
+               self.pda.SetMode(0)
+               self.sound.Play("click.wav")
+            if ika.Input.keyboard['T'].Pressed() or ika.Input.keyboard['2'].Pressed():
+               self.pda.SetMode(1)
+               self.sound.Play("click.wav")
+            if ika.Input.keyboard['O'].Pressed() or ika.Input.keyboard['3'].Pressed():
+               self.pda.SetMode(2)
+               self.sound.Play("click.wav")
+            if ika.Input.keyboard['L'].Pressed() or ika.Input.keyboard['4'].Pressed():
+               self.pda.SetMode(3)
+               self.sound.Play("click.wav")
+
+
+
+            if ika.Input.keyboard['TAB'].Pressed():
+                self.fullscreen = not self.fullscreen
+
+
             self.UpdateStats()
             
             self.Move()            
             
-                     
-
-            #main hud drawing
-            
+            #done processing, input, start main hud drawing            
             
             ika.Video.Blit(self.hudmain, 0, 0)
             ika.Video.TintBlit(self.hudcolor, 0, 0, self.color)
@@ -387,37 +425,7 @@ class Engine(object):
 
             ika.Video.ShowPage()
 
-            ###Done drawing, process input ###
 
-            if ika.Input.keyboard['RCTRL'].Position() or ika.Input.keyboard['LCTRL'].Position() or self.MouseM():
-               self.Attack()
-
-            if ika.Input.keyboard['R'].Pressed():
-               self.Reload()
-
-            if ika.Input.keyboard['F'].Pressed():
-               if self.equip.lefthand:
-                  self.equip.lefthand.Use()
-                  if isinstance(self.equip.lefthand, Stackable) and self.equip.lefthand.count == 0:
-                     self.equip.lefthand = None
-
-            if ika.Input.keyboard['M'].Pressed() or ika.Input.keyboard['1'].Pressed():
-               self.pda.SetMode(0)
-               self.sound.Play("click.wav")
-            if ika.Input.keyboard['T'].Pressed() or ika.Input.keyboard['2'].Pressed():
-               self.pda.SetMode(1)
-               self.sound.Play("click.wav")
-            if ika.Input.keyboard['O'].Pressed() or ika.Input.keyboard['3'].Pressed():
-               self.pda.SetMode(2)
-               self.sound.Play("click.wav")
-            if ika.Input.keyboard['L'].Pressed() or ika.Input.keyboard['4'].Pressed():
-               self.pda.SetMode(3)
-               self.sound.Play("click.wav")
-
-
-
-            if ika.Input.keyboard['TAB'].Pressed():
-                self.fullscreen = not self.fullscreen
 
     # MOUSE #############################################################################################
 
@@ -446,8 +454,7 @@ class Engine(object):
           self.inv.grabbeditem.Draw(int(self.MouseX())-8, int(self.MouseY())-8)
           #self.inv.grabbeditem.Draw(int(self.MouseX()), int(self.MouseY()))
 
-       if self.MouseClicked(): #click!
-       
+       if self.MouseClicked(): #click!       
        
           ### Main Window Click ###############################################################################
           
@@ -1029,15 +1036,28 @@ class Engine(object):
                       for l in range(len(decal_layers)):
                           if b_decals[l][key]:  
                             if self.facetable[self.facing] == decalf[l][key]:
-                               self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
+                                try:
+                                    self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
+                                except:
+                                    ika.Log("key: "+str(key))
+                                    ika.Log("val: "+str(val))
+                                    ika.Log("decals[l][key]: "+str(decals[l][key]))
+                                    ika.Log("key: "+str(key))                                    
                 #perspective walls and decals
                 for key, val in pwalldicts[row].items():
                       if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
                       for l in range(len(decal_layers)):
                           if b_decals[l][key]:  #and facing is correct
                             if ("left" in val and self.facetable_l[self.facing] == decalf[l][key]) or \
-                               ("right" in val and self.facetable_r[self.facing] == decalf[l][key]):                 
-                                 self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
+                               ("right" in val and self.facetable_r[self.facing] == decalf[l][key]): 
+                                 try:
+                                    self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
+                                 except:
+                                    ika.Log("key: "+str(key))
+                                    ika.Log("val: "+str(val))
+                                    ika.Log("decals[l][key]: "+str(decals[l][key]))
+                                    ika.Log("key: "+str(key))
+                                    
 
         ika.Video.ClipScreen() #stop clipping now.
         
