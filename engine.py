@@ -7,7 +7,8 @@ import sound
 import pda
 import credits
 import scripts 
-import wrapper
+
+import wrapper #encapsulate ika functions for easy porting if needed
 
 ika.SetCaption(ika.GetCaption() + " - Final Eclipse")
 engine = None
@@ -430,7 +431,7 @@ class Engine(object):
         if self.debug: #debug mode for layer visibility toggling
             for i in range(4):                        
                 if ika.Input.keyboard['F'+str(i+1)].Pressed():    
-                    self.layer_visibility[i] = 1 - self.layer_visibility[i] #swap 0/1
+                    self.layer_visibility[i] = int(not self.layer_visibility[i]) #swap 0/1
             
 
     # MOUSE #############################################################################################
@@ -487,7 +488,7 @@ class Engine(object):
                   if self.inv.grabbeditem is None: #not holding an item, try to grab one
                      #todo: code pressing buttons
                      # if facing a wall directly ahead and wall contains a pressable item, find the clickable area and compare to activate
-                    if not ika.Map.GetTile(self.plrx+offx, self.plry+offy, 0): #don't try to grab from tiles that have walls. Bug if items are placed in a doorway..
+                    if not wrapper.GetTile(self.plrx+offx, self.plry+offy, 0): #don't try to grab from tiles that have walls. Bug if items are placed in a doorway..
 
                         if self.items.has_key((self.plrx+offx, self.plry+offy)): #item exists here
                             self.inv.grabbeditem = self.items[(self.plrx+offx, self.plry+offy)].pop() #grabs only the first item out of the list
@@ -495,7 +496,7 @@ class Engine(object):
                             if len(self.items[(self.plrx+offx, self.plry+offy)]) == 0:
                                del self.items[(self.plrx+offx, self.plry+offy)] #delete out of dict if it's empty
                   else: #holding an item, try to place it                        
-                     if not ika.Map.GetTile(self.plrx+offx, self.plry+offy, 0): #don't try to place onto a wall. Does not work for doors..
+                     if not wrapper.GetTile(self.plrx+offx, self.plry+offy, 0): #don't try to place onto a wall. Does not work for doors..
                          if self.items.has_key((self.plrx+offx, self.plry+offy)):
                             self.items[(self.plrx+offx, self.plry+offy)].append(self.inv.grabbeditem)
                          else:
@@ -910,7 +911,7 @@ class Engine(object):
                 if self.facing == 2: x = -j; y = i
                 if self.facing == 3: x = -i; y = -j                
                     
-                walls[t] = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 0) #Wall layer
+                walls[t] = wrapper.GetTile(int(self.plrx+x), int(self.plry+y), 0) #Wall layer
                 if walls[t] > 0 and walls[t] < self.objnum:
                     walls[t]-=1 #walls are 0 based, so subtract 1 to get the correct index for the image
                     b_walls[t]=True #wall exists here
@@ -928,18 +929,18 @@ class Engine(object):
                 ents[t] = self.GetEnts(int(self.plrx+x), int(self.plry+y))
                 
                 for l in range(len(decal_layers)):
-                    d = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), decal_layers[l])
+                    d = wrapper.GetTile(int(self.plrx+x), int(self.plry+y), decal_layers[l])
                     if d>=self.decalnum and d<100: #within decal range, currently tiles 40+
                         d-=self.decalnum
                         b_decals[l][t]=True
                         
                         decals[l][t] = d #get the decal tile number
                         
-                        f = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), decal_layers[l] + 1) #facing layer is one layer higher
+                        f = wrapper.GetTile(int(self.plrx+x), int(self.plry+y), decal_layers[l] + 1) #facing layer is one layer higher than current decal layer
                         decalf[l][t] = f % 4 #get the facing number. Hack, modding by 4 lets us use any tile if we wanted to, and lets us put colors to help identify different decal layer facings
 
                 
-                o = ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 1) #Object layer
+                o = wrapper.GetTile(int(self.plrx+x), int(self.plry+y), 1) #Object layer
                 
                 if o>=self.objnum and o<self.decalnum: #within object range, currently tiles 20-40                  
                     b_obj[t] = True
@@ -1083,8 +1084,8 @@ class Engine(object):
     def DrawAutoMap(self):
         for x in range(-11, 12):
             for y in range(-3, 4):
-                if ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 0) > 0 \
-                and ika.Map.GetTile(int(self.plrx+x), int(self.plry+y), 0) !=4: #haaaack
+                if wrapper.GetTile(int(self.plrx+x), int(self.plry+y), 0) > 0 \
+                and wrapper.GetTile(int(self.plrx+x), int(self.plry+y), 0) !=4: #haaaack
 
                    self.tiles[1].Blit(100+8*x, 199+8*y)
                 ents = self.GetEnts(self.plrx+x, self.plry+y)
