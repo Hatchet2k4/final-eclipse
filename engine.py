@@ -14,11 +14,11 @@ engine = None
 #intro.Start()
 #credits.Start()
 
-
-
 class Engine(object):
-    def __init__(self):
-        
+    def __init__(self):        
+    
+        self.debug=True #debug mode
+    
         self.tinyfont = ika.Font('fonts/log_white.fnt')
         self.itemfont = ika.Font('fonts/item_white.fnt')
         self.itemfontgrey = ika.Font('fonts/item_grey.fnt')
@@ -69,7 +69,7 @@ class Engine(object):
         
         self.arrows = [] #images of arrows for automap
                 
-        
+        self.layer_visibility= [1]*4 #for debug of row layers
         
         for i in range(4):
             self.arrows.append(ika.Image("Img/minimap/Pointer"+str(i)+".png"))
@@ -343,42 +343,10 @@ class Engine(object):
 
             ika.Input.Update()
 
-
             ###process input ###
 
-            if ika.Input.keyboard['RCTRL'].Position() or ika.Input.keyboard['LCTRL'].Position() or self.MouseM():
-               self.Attack()
-
-            if ika.Input.keyboard['R'].Pressed():
-               self.Reload()
-
-            if ika.Input.keyboard['F'].Pressed():
-               if self.equip.lefthand:
-                  self.equip.lefthand.Use()
-                  if isinstance(self.equip.lefthand, Stackable) and self.equip.lefthand.count == 0:
-                     self.equip.lefthand = None
-
-            if ika.Input.keyboard['M'].Pressed() or ika.Input.keyboard['1'].Pressed():
-               self.pda.SetMode(0)
-               self.sound.Play("click.wav")
-            if ika.Input.keyboard['T'].Pressed() or ika.Input.keyboard['2'].Pressed():
-               self.pda.SetMode(1)
-               self.sound.Play("click.wav")
-            if ika.Input.keyboard['O'].Pressed() or ika.Input.keyboard['3'].Pressed():
-               self.pda.SetMode(2)
-               self.sound.Play("click.wav")
-            if ika.Input.keyboard['L'].Pressed() or ika.Input.keyboard['4'].Pressed():
-               self.pda.SetMode(3)
-               self.sound.Play("click.wav")
-
-
-
-            if ika.Input.keyboard['TAB'].Pressed():
-                self.fullscreen = not self.fullscreen
-
-
-            self.UpdateStats()
-            
+            self.DoInput()
+            self.UpdateStats()            
             self.Move()            
             
             #done processing, input, start main hud drawing            
@@ -429,6 +397,41 @@ class Engine(object):
             ika.Video.ShowPage()
 
 
+
+    def DoInput(self):
+        if ika.Input.keyboard['RCTRL'].Position() or ika.Input.keyboard['LCTRL'].Position() or self.MouseM():
+           self.Attack()
+
+        if ika.Input.keyboard['R'].Pressed():
+           self.Reload()
+
+        if ika.Input.keyboard['F'].Pressed():
+           if self.equip.lefthand:
+              self.equip.lefthand.Use()
+              if isinstance(self.equip.lefthand, Stackable) and self.equip.lefthand.count == 0:
+                 self.equip.lefthand = None
+
+        if ika.Input.keyboard['M'].Pressed() or ika.Input.keyboard['1'].Pressed():
+           self.pda.SetMode(0)
+           self.sound.Play("click.wav")
+        if ika.Input.keyboard['T'].Pressed() or ika.Input.keyboard['2'].Pressed():
+           self.pda.SetMode(1)
+           self.sound.Play("click.wav")
+        if ika.Input.keyboard['O'].Pressed() or ika.Input.keyboard['3'].Pressed():
+           self.pda.SetMode(2)
+           self.sound.Play("click.wav")
+        if ika.Input.keyboard['L'].Pressed() or ika.Input.keyboard['4'].Pressed():
+           self.pda.SetMode(3)
+           self.sound.Play("click.wav")
+
+        if ika.Input.keyboard['TAB'].Pressed():
+            self.fullscreen = not self.fullscreen
+        
+        if self.debug: #debug mode for layer visibility toggling
+            for i in range(4):                        
+                if ika.Input.keyboard['F'+str(i+1)].Pressed():    
+                    self.layer_visibility[i] = 1 - self.layer_visibility[i] #swap 0/1
+            
 
     # MOUSE #############################################################################################
 
@@ -998,7 +1001,8 @@ class Engine(object):
         entrow = [3,2,1,0] #reverses the row index since the facing is stored closest to furthest
         
         
-        for row in range(4):                       
+        for row in range(4): 
+            if self.layer_visibility[row]:
                 #using objects dict to draw objects, items and 
                 for key, val in objdicts[row].items():                   
                    #objects are refreshingly simple to draw currently...
