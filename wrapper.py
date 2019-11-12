@@ -30,7 +30,9 @@ def GetTime():
     return ika.GetTime()
 
 def GetTile(x, y, layer):
-    if x>=0 and y>=0:
+    label, width, height, wrapx, wrapy = ika.Map.GetLayerProperties(layer)
+    
+    if x>=0 and y>=0 and x<width and y<height:
         return ika.Map.GetTile(x, y, layer)
     return 0 #return 0 if out of bounds
     

@@ -693,6 +693,9 @@ class Engine(object):
        if hurt: #we can hurt someone :D
           offx, offy = self.offtable[self.facing]
           for i in range(1, distance+1):
+             o=ika.Map.GetObs(self.plrx+i*offx, self.plry+i*offy, 0) #check for walls first
+             if o: return #end if we hit an obstruction first
+             
              ents = self.GetEnts(self.plrx+i*offx, self.plry+i*offy)
              for e in ents:
                 if e and isinstance(e, entity.Enemy) and not e.dead:
