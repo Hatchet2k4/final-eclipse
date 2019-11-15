@@ -158,14 +158,15 @@ class Inventory(object):
 
 class Equip(object):
    def __init__(self):
-      #self.righthand = Rifle(60)
-      #self.lefthand = None
-      #self.armor = Armor2()
-      #self.belt = Belt2()
-      self.righthand = None
+      self.righthand = Rifle(60)
       self.lefthand = None
-      self.armor = Clothing()
-      self.belt = None
+      self.armor = Armor2()
+      self.belt = Belt2()
+      
+      #self.righthand = None
+      #self.lefthand = None
+      #self.armor = Clothing()
+      #self.belt = None
 
    def Draw(self):
       if self.righthand: self.righthand.Draw(253, 178)

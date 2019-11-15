@@ -87,7 +87,7 @@ class Engine(object):
         self.NewGame() #setup initial settings for enemies, items, switches, etc.
         self.LoadAssets()
         
-        self.LoadDeck("medsci")        
+        self.LoadDeck("medsci", 3, 5, EAST)        
 
 
         self.color = ika.RGB(0,0,0)
@@ -105,7 +105,7 @@ class Engine(object):
         #imgusage = sys.getsizeof(assets)
         #ika.Log("Estimated image memory usage: " + str(imgusage/1024) +"KB")
 
-    def LoadDeck(self, deck):
+    def LoadDeck(self, deck, x, y, facing):
         
         #save state before switching decks! may not be needed as the are already referring to global..
         #self.global_entities[self.deck] = self.entities
@@ -114,6 +114,12 @@ class Engine(object):
         
         #load new deck
         self.deck = deck
+        
+        self.plrx=x
+        self.plry=y
+        self.facing=facing
+        
+        
         ika.Map.Switch(deck+'.ika-map')        
         self.back = self.backgrounds[deck]
         
@@ -121,9 +127,9 @@ class Engine(object):
         self.items = self.global_items[deck]
         self.switches = self.global_switches[deck]
         
-        self.things = []
+        self.things = self.global_things[deck]
         
-        self.music = ika.Music("music/medsci.ogg") #change per deck
+        self.music = ika.Music("music/"+deck+".ogg") #change per deck
         self.music.loop = True
         self.music.Play()
         
@@ -202,12 +208,21 @@ class Engine(object):
         self.inv = Inventory()
         self.equip = Equip()
         
+        self.global_things = { 
+        
+        "medsci": [Zone(9, 11, scripts.Elevator1)], 
+        "office": [],
+        "operations": [],
+        "barracks": [],
+        "final": []              
+        }
+        
         self.global_entities = { "medsci": [
                        entity.Vagimon(11,17, ika.Random(0, 4)),
                        entity.Vagimon(15,7, ika.Random(0, 4)),
                        entity.Vagimon(11,10, ika.Random(0, 4)),
                        entity.Vagimon(13,12, ika.Random(0, 4)),
-                       entity.Vagimon(6,15, ika.Random(0, 4)),
+                       entity.Vagimon(5,9, ika.Random(0, 4)),
                        entity.Vagimon(12,20, ika.Random(0, 4)),
                        entity.Vagimon(15,19, ika.Random(0, 4)),
                        entity.Vagimon(22,16, ika.Random(0, 4)),
@@ -222,7 +237,7 @@ class Engine(object):
                        entity.Walker(19,7, ika.Random(0, 4)),
                        entity.Walker(23,3, ika.Random(0, 4)),
                        entity.Walker(18,11, ika.Random(0, 4)),
-                       entity.Walker(9,11, ika.Random(0, 4)),
+                       entity.Walker(11,11, ika.Random(0, 4)),
                        entity.Walker(6,20, ika.Random(0, 4)),
                        entity.Walker(4,22, ika.Random(0, 4)),
                        entity.Walker(14,19, ika.Random(0, 4)),
@@ -238,7 +253,7 @@ class Engine(object):
                        ], 
                        "office": [],
                        "operations": [],
-                       "barracks": [],
+                       "barracks": [entity.Vagimon(5,9, ika.Random(0, 4))],
                        "final": []                       
                        }
                        
@@ -305,8 +320,8 @@ class Engine(object):
         self.attack = 0
         self.defense = 0
 
-        self.plrx = 3
-        self.plry = 5
+        self.plrx = 0
+        self.plry = 0
         self.facing = EAST
 
         self.backflip = 0
@@ -316,7 +331,8 @@ class Engine(object):
         self.attacking = False
         self.reloading = False
         self.animtimer = 0
-     
+
+        self.tinteffect = False
 
     def Run(self):
 
@@ -350,6 +366,9 @@ class Engine(object):
             self.UpdateStats()            
             self.Move()            
             
+            for thing in self.things:
+                thing.Update()
+            
             #done processing, input, start main hud drawing            
             
             ika.Video.Blit(self.hudmain, 0, 0)
@@ -368,6 +387,10 @@ class Engine(object):
 
             self.pda.Draw()
             self.messages.Draw()
+
+            #effects
+            #if self.tinteffect:
+            #    ika.Video.DrawRect(self.left,self.top,self.left+224,self.top+128, ika.RGB(127,0,0, 127))
 
             if self.fullscreen:
                ### Fake fullscreen mode! But currently no mouse. May hack in a fullscreen mode mouse for fun..
@@ -1213,6 +1236,29 @@ class Messages(object): #for the two message lines under the main view
    def Draw(self):
       for i, m in enumerate(self.msg):
          engine.tinyfont.Print(10, 144+10*i, m)
+
+
+#generic thing, can update every frame to detect or react to changes
+#class Thing(object):
+#    def __init__(self, x, y, script):
+#        self.x=x
+#        self.y=y 
+#        self.script=script
+#
+#    def update()
+
+#type of thing that watches for player position
+
+class Zone(object):
+    def __init__(self, x, y, script):
+        self.x=x
+        self.y=y 
+        self.script=script
+        self.triggered=False
+
+    def Update(self):
+        self.script(self)
+
 
 
 

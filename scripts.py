@@ -81,9 +81,20 @@ def OpenDoor2():
             ika.Map.SetObs(8, 11, 0, 0) #remove obstruction
             flags["door2opened"]=True
    
-   
-   
-   
-   
-   
+
             
+            
+            
+#### Thing/Zone scripts 
+
+def Elevator1(self): #not an object but still can act on the original object, woo :D     
+
+    if not self.triggered and engine.engine.plrx==self.x and engine.engine.plry==self.y: #on the tile
+        self.triggered=True
+        engine.engine.messages.AddMessage("Entered Elevator", 200)
+        engine.engine.LoadDeck("barracks", 9, 11, WEST)
+
+    if self.triggered and (engine.engine.plrx != self.x or engine.engine.plry != self.y): #was on the tile, no longer is
+        self.triggered=False
+        engine.engine.messages.AddMessage("Left Elevator", 200)
+        
