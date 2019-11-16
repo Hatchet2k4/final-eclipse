@@ -334,6 +334,13 @@ class Engine(object):
 
         self.tinteffect = False
 
+        self.moveanim = False #currently in movement animation
+        self.movetimer = 0
+        self.slideimg= [None, None] #needs refactoring, HACK
+        self.slidedir=None
+        
+        
+
     def Run(self):
 
         time = ika.GetTime()
@@ -364,7 +371,11 @@ class Engine(object):
 
             self.DoInput()
             self.UpdateStats()            
-            self.Move()            
+            self.Move() #todo. don't move player or grab walls here yet, but return new position and facing to use as input for AnimWalls
+            
+            if self.moveanim:
+                self.AnimWalls()
+            
             
             for thing in self.things:
                 thing.Update()
@@ -378,10 +389,13 @@ class Engine(object):
                                   (249 + (50 * self.health / self.max_health), 144, self.color),
                                   (249 + (50 * self.health / self.max_health), 150, self.color),
                                   (249, 150, self.color))
-
+            #draw in main window
+            ika.Video.ClipScreen(self.left, self.top, self.left+224, self.top+128) ##prevent from drawing outside the main window                        
             self.DrawWalls()
             self.DrawFrames() #draws equipped weapon in its current state
-
+            ika.Video.ClipScreen() #stop clipping now.
+            
+            #draw rest of ui
             self.inv.Draw()
             self.equip.Draw()
 
@@ -826,7 +840,7 @@ class Engine(object):
     #OTHER ###################################################################################################
 
     def Move(self):
-        if self.attacking: return #bad, no move for you!
+        if self.attacking or self.moveanim: return #bad, no move for you!
 
         offx, offy = self.offtable[self.facing]
         self.moved = False
@@ -866,9 +880,20 @@ class Engine(object):
 
         elif ika.Input.keyboard['A'].Pressed():
            offx, offy = self.offtable_l[self.facing]
-           if not self.GetObs(self.plrx+offx, self.plry+offy):
-              self.plrx += offx; self.plry += offy
+           if not self.GetObs(self.plrx+offx, self.plry+offy): 
+              
+              #HACK
+              self.slideimg[0] = self.GrabWalls(self.plrx, self.plry, self.facing) #get current position still
+              
+              
+              
               self.moved = True
+              self.moveanim = True
+              
+              self.slideimg[1] = self.GrabWalls(self.plrx+offx, self.plry+offy, self.facing)
+              
+              self.plrx += offx; self.plry += offy
+              
 
         elif ika.Input.keyboard['D'].Pressed():
             offx, offy = self.offtable_r[self.facing]
@@ -883,9 +908,29 @@ class Engine(object):
                 return True #enemy found, blocked
           return False
        return True #obstruction found
+       
+       
+    def GrabWalls(self, dx, dy, facing): #returns an image of the walls drawn in a specific direction        
+        ika.Video.ClipScreen(self.left, self.top, self.left+224, self.top+128)
+        self.DrawWalls(dx, dy, facing)    
+        ika.Video.ClipScreen()
+        
+        #img = ika.Video.GrabCanvas(self.left, self.top, self.left+224, self.top+128)
+        #img.Save("testWalls.png")        
+        
+        return ika.Video.GrabImage(self.left, self.top, self.left+224, self.top+128)
+    
 
 
-    def DrawWalls(self):
+
+
+    def DrawWalls(self, dx=None, dy=None, facing=None):
+    
+        if dx==None: dx=self.plrx
+        if dy==None: dy=self.plry
+        if facing==None: facing=self.facing
+        
+   
         if(self.moved): #We just took a step. Flip the background image, to make the movement look more realistic.
             self.backflip += 1
             if(self.backflip > 1): self.backflip = 0
@@ -910,8 +955,9 @@ class Engine(object):
         y = 0
         t = 0 #flat index, 0 - 25
         
-        #background
-        self.back[self.backflip].Blit(self.left, self.top)
+        
+        
+        self.back[self.backflip].Blit(self.left, self.top) #Draw the background
         
 	    ### This section generates 4 rows of data, to fill in the 25 item list as above. These are laid out in the following cell format, with cell 1 being the player's position:
         """
@@ -923,6 +969,8 @@ class Engine(object):
         ### These cells are dependent on the player's current facing, but makes it much easier to determine what must be drawn later. 
         ### Some cells are unused. This algorithm could (and possibly should) be modified to have a better line of sight to reduce unused cells.
         
+        
+        #this table is used to draw items at various heights if they are on top of specific objects as below
         offsettable = { OBJECT_TABLE: [16, 16, 12, 8], 
                         OBJECT_MEDTABLE: [16, 16, 12, 8],
                         OBJECT_CRATE: [40, 40, 36, 32]
@@ -932,12 +980,14 @@ class Engine(object):
             j = -i-1 #starts at -1, ends -4 
             while(j < i+2): 
                 #determine how cells that will be filled 
-                if self.facing == 0: x = j; y = -i
-                if self.facing == 1: x = i; y = j
-                if self.facing == 2: x = -j; y = i
-                if self.facing == 3: x = -i; y = -j                
-                    
-                walls[t] = wrapper.GetTile(int(self.plrx+x), int(self.plry+y), 0) #Wall layer
+                if facing == 0: x = j; y = -i
+                if facing == 1: x = i; y = j
+                if facing == 2: x = -j; y = i
+                if facing == 3: x = -i; y = -j                
+                
+                
+                
+                walls[t] = wrapper.GetTile(int(dx+x), int(dy+y), 0) #Wall layer
                 if walls[t] > 0 and walls[t] < self.objnum:
                     walls[t]-=1 #walls are 0 based, so subtract 1 to get the correct index for the image
                     b_walls[t]=True #wall exists here
@@ -952,21 +1002,21 @@ class Engine(object):
                     else: self.tiles[0].Blit(100+8*x, 199+8*y)
                 ### END HACK ###
                 
-                ents[t] = self.GetEnts(int(self.plrx+x), int(self.plry+y))
+                ents[t] = self.GetEnts(int(dx+x), int(dy+y))
                 
                 for l in range(len(decal_layers)):
-                    d = wrapper.GetTile(int(self.plrx+x), int(self.plry+y), decal_layers[l])
+                    d = wrapper.GetTile(int(dx+x), int(dy+y), decal_layers[l])
                     if d>=self.decalnum and d<100: #within decal range, currently tiles 40+
                         d-=self.decalnum
                         b_decals[l][t]=True
                         
                         decals[l][t] = d #get the decal tile number
                         
-                        f = wrapper.GetTile(int(self.plrx+x), int(self.plry+y), decal_layers[l] + 1) #facing layer is one layer higher than current decal layer
+                        f = wrapper.GetTile(int(dx+x), int(dy+y), decal_layers[l] + 1) #facing layer is one layer higher than current decal layer
                         decalf[l][t] = f % 4 #get the facing number. Hack, modding by 4 lets us use any tile if we wanted to, and lets us put colors to help identify different decal layer facings
 
                 
-                o = wrapper.GetTile(int(self.plrx+x), int(self.plry+y), 1) #Object layer
+                o = wrapper.GetTile(int(dx+x), int(dy+y), 1) #Object layer
                 
                 if o>=self.objnum and o<self.decalnum: #within object range, currently tiles 20-40                  
                     b_obj[t] = True
@@ -977,12 +1027,12 @@ class Engine(object):
                   #    ika.Log("t:" + str(t))
                   #    ika.Log("o:" + str(o))
                   #    ika.Log("objnum:" + str(self.objnum))
-                  #    ika.Log("x:"+str(int(self.plrx+x)))
-                  #    ika.Log("y:"+str(int(self.plry+y)))
+                  #    ika.Log("x:"+str(int(dx+x)))
+                  #    ika.Log("y:"+str(int(dy+y)))
 
                 
-                if self.items.has_key((int(self.plrx+x), int(self.plry+y))):
-                   f_items[t] = self.items[(int(self.plrx+x), int(self.plry+y))]
+                if self.items.has_key((int(dx+x), int(dy+y))):
+                   f_items[t] = self.items[(int(dx+x), int(dy+y))]
                    
                    if o in [OBJECT_TABLE, OBJECT_MEDTABLE]: #hack to draw items at proper height on tables, object numbers 0 and 1
                       item_offset[t] = [48, 11, 9,0][i]
@@ -997,7 +1047,7 @@ class Engine(object):
 
         ##### Drawing logic. Draws from back to front. #########################################                        
         
-        ika.Video.ClipScreen(self.left, self.top, self.left+224, self.top+128) ##prevent from drawing outside the main window
+        
         
         #side walls
         pwalldicts = [ { 17: "per4farleft", 18: "per4left", 20: "per4right", 21: "per4farright"},
@@ -1060,15 +1110,15 @@ class Engine(object):
 
                         if(ents[key]): #enemies and entities next!
                            for e in ents[key]: 
-                               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(self.facing, entrow[row]), base_entityx[row][side], base_entityy[row])
-                               #elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(self.facing, 2), 50+12, 36+12)                               
+                               if isinstance(e, entity.Enemy): ika.Video.Blit(e.GetFrame(facing, entrow[row]), base_entityx[row][side], base_entityy[row])
+                               #elif isinstance(e, entity.Projectile):  ika.Video.Blit(e.GetFrame(facing, 2), 50+12, 36+12)                               
     
                 #front facing walls and decals
                 for key, val in fwalldicts[row].items():              
                       if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)              
                       for l in range(len(decal_layers)):
                           if b_decals[l][key]:  
-                            if self.facetable[self.facing] == decalf[l][key]:
+                            if self.facetable[facing] == decalf[l][key]:
                                 try:
                                     self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
                                 except:
@@ -1081,8 +1131,8 @@ class Engine(object):
                       if b_walls[key]: self.wallimages[walls[key]][val].Blit(self.left, self.top)
                       for l in range(len(decal_layers)):
                           if b_decals[l][key]:  #and facing is correct
-                            if ("left" in val and self.facetable_l[self.facing] == decalf[l][key]) or \
-                               ("right" in val and self.facetable_r[self.facing] == decalf[l][key]): 
+                            if ("left" in val and self.facetable_l[facing] == decalf[l][key]) or \
+                               ("right" in val and self.facetable_r[facing] == decalf[l][key]): 
                                  try:
                                     self.decalimages[decals[l][key]][val].Blit(self.left, self.top)
                                  except:
@@ -1092,10 +1142,62 @@ class Engine(object):
                                     ika.Log("key: "+str(key))
                                     
 
-        ika.Video.ClipScreen() #stop clipping now.
+
         
         ##### Drawing done! #####	
+        
 
+        
+    def AnimWalls(self):
+        #currently kills all user input to draw animated walls instead
+        time = ika.GetTime()        
+        animlength = 14 #how many ticks to draw        
+        animtimer = 1 #starts at 1 until > animlength
+        done = False                        
+        
+        offsetx = 224/animlength
+
+        while not done:
+            t = ika.GetTime()
+            while t > time:
+               time += 1
+               
+               
+            ika.Input.Update()
+            time = ika.GetTime()
+        
+        
+        
+            ika.Video.Blit(self.hudmain, 0, 0)
+            ika.Video.TintBlit(self.hudcolor, 0, 0, self.color)
+            ika.Video.TintDistortBlit(self.hudhealth,
+                                  (249, 144, self.color),
+                                  (249 + (50 * self.health / self.max_health), 144, self.color),
+                                  (249 + (50 * self.health / self.max_health), 150, self.color),
+                                  (249, 150, self.color))
+        
+            ika.Video.ClipScreen(self.left, self.top, self.left+224, self.top+128)
+            
+            
+            ika.Video.Blit(self.slideimg[0], self.left + int(offsetx * animtimer), self.top, ika.Opaque)
+            ika.Video.Blit(self.slideimg[1], self.left + int(offsetx * animtimer) - 224, self.top, ika.Opaque)
+            
+            self.DrawFrames() #draws equipped weapon in its current state
+            
+            ika.Video.ClipScreen()
+            
+            self.inv.Draw()
+            self.equip.Draw()
+
+            self.pda.Draw()
+            self.messages.Draw()
+            
+            ika.Video.ShowPage()
+            
+            animtimer +=1
+            if animtimer > animlength: done = True
+                
+        self.moveanim=False    
 
     def GetEnts(self, x, y):
        dead_ents = []
