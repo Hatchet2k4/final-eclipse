@@ -392,6 +392,13 @@ class Engine(object):
             #draw in main window
             ika.Video.ClipScreen(self.left, self.top, self.left+224, self.top+128) ##prevent from drawing outside the main window                        
             self.DrawWalls()
+            
+            
+            if ika.Input.keyboard['F12'].Pressed():
+                 img = ika.Video.GrabCanvas(self.left, self.top, self.left+224, self.top+128)
+                 img.Save("testwallsx"+str(self.plrx) +"y"+str(self.plry)+"f"+str(self.facing)+".png")  #hack to screenshot just the walls drawn so far
+            
+            
             self.DrawFrames() #draws equipped weapon in its current state
             ika.Video.ClipScreen() #stop clipping now.
             
@@ -432,11 +439,17 @@ class Engine(object):
                ika.Input.Unpress()
                time = ika.GetTime()
 
+
             ika.Video.ShowPage()
+                    
+
 
 
 
     def DoInput(self):
+    
+ 
+    
         if ika.Input.keyboard['RCTRL'].Position() or ika.Input.keyboard['LCTRL'].Position() or self.MouseM():
            self.Attack()
 
